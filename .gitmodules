@@ -13,3 +13,30 @@
 [submodule "Boltz-Ref-src/boltzina"]
 	path = Boltz-Ref-src/boltzina
 	url = https://github.com/ohuelab/boltzina.git
+[submodule "AF2-Ref-src/alphafold-official"]
+	path = AF2-Ref-src/alphafold-official
+	url = https://github.com/deepmind/alphafold.git
+[submodule "AF2-Ref-src/openfold"]
+	path = AF2-Ref-src/openfold
+	url = https://github.com/aqlaboratory/openfold.git
+[submodule "AF2-Ref-src/colabfold"]
+	path = AF2-Ref-src/colabfold
+	url = https://github.com/sokrypton/ColabFold.git
+[submodule "AF2-Ref-src/mmseqs2"]
+	path = AF2-Ref-src/mmseqs2
+	url = https://github.com/soedinglab/MMseqs2.git
+[submodule "AF2-Ref-src/hh-suite"]
+	path = AF2-Ref-src/hh-suite
+	url = https://github.com/soedinglab/hh-suite.git
+[submodule "AF2-Ref-src/trRosetta2"]
+	path = AF2-Ref-src/trRosetta2
+	url = https://github.com/RosettaCommons/trRosetta2.git
+[submodule "AF2-Ref-src/esm"]
+	path = AF2-Ref-src/esm
+	url = https://github.com/facebookresearch/esm.git
+[submodule "AF2-Ref-src/unirep"]
+	path = AF2-Ref-src/unirep
+	url = https://github.com/churchlab/UniRep.git
+[submodule "AF2-Ref-src/seqvec"]
+	path = AF2-Ref-src/seqvec
+	url = https://github.com/rostlab/SeqVec.git

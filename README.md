@@ -179,7 +179,43 @@ Boltz-Ref-src/boltzina/
 # References 
 ## reference papers
 - [Reference papers list](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2REFPAPERS.md) here and you can download them by [Baidu Cloud Driver Link](https://pan.baidu.com/s/131uRwemUTwGvY-6kqxCYDA) with the code 9w2p.
-- [Reference Papers' Source Codes](https://github.com/chenxingqiang/ref-Alphafold-Code/tree/main/AF2-Ref-source-code) are included in this repo.
+- Reference Papers' Source Codes are managed via git submodules in `AF2-Ref-src/`
+
+### 📦 AlphaFold2 Reference Source Code (Submodules)
+
+```bash
+# Official AlphaFold (DeepMind)
+AF2-Ref-src/alphafold-official/
+
+# OpenFold (PyTorch implementation)
+AF2-Ref-src/openfold/
+
+# ColabFold (Colab-friendly version)
+AF2-Ref-src/colabfold/
+
+# MMseqs2 (Sequence search)
+AF2-Ref-src/mmseqs2/
+
+# HH-suite (Template search)
+AF2-Ref-src/hh-suite/
+
+# trRosetta2 (Predecessor model)
+AF2-Ref-src/trRosetta2/
+
+# ESM (Facebook protein language model)
+AF2-Ref-src/esm/
+
+# UniRep (Protein representations)
+AF2-Ref-src/unirep/
+
+# SeqVec (Sequence embeddings)
+AF2-Ref-src/seqvec/
+```
+
+To initialize submodules after cloning:
+```bash
+git submodule update --init --recursive
+```
 
 
 
