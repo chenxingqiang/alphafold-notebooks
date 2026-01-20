@@ -172,6 +172,97 @@ Boltz-Ref-src/boltzina/
 
 ### MD+Alphafold2
 - https://github.com/pablo-arantes/Making-it-rain
+
+---
+
+## 🔧 Fine-tuning Framework (NEW!)
+
+We provide a comprehensive **fine-tuning framework** for adapting protein structure prediction models to downstream tasks.
+
+👉 **[Full Fine-tuning Guide](finetuning/FINETUNING_GUIDE.md)**
+
+### Supported Models
+
+| Model | Framework | Fine-tuning Support |
+|-------|-----------|-------------------|
+| AlphaFold2 | JAX/Haiku | ✅ Full, Head-only, LoRA |
+| AlphaFold3 | JAX/Haiku | ✅ Full, Head-only, LoRA |
+| Boltz-1 | PyTorch | ✅ Full, LoRA, Adapter |
+| Boltz-2 | PyTorch | ✅ Full, LoRA, Adapter |
+
+### Fine-tuning Strategies
+
+| Strategy | Trainable Params | Use Case |
+|----------|-----------------|----------|
+| **LoRA** | ~0.1% | Small datasets, efficient fine-tuning |
+| **Adapter** | ~1% | Modular, multiple tasks |
+| **Head-only** | ~5% | New prediction tasks |
+| **Full** | 100% | Large datasets, maximum performance |
+
+### Supported Tasks
+
+- **Binding Affinity**: Protein-ligand binding prediction (pKd, pIC50, ΔG)
+- **Property Prediction**: Stability, solubility, expression, aggregation
+- **Contact Prediction**: Residue-residue contact maps
+- **Mutation Effects**: ΔΔG, fitness landscape prediction
+
+### Quick Start
+
+```python
+from finetuning import FineTuningConfig, Trainer
+from finetuning.modules import LoRAModule
+from finetuning.heads import AffinityHead
+
+# 1. Load pretrained model
+model = load_pretrained_boltz2()
+
+# 2. Apply LoRA (only ~0.1% parameters trainable)
+lora_model = LoRAModule(model, rank=8, alpha=16.0)
+
+# 3. Add task-specific head
+affinity_head = AffinityHead(AffinityHeadConfig())
+
+# 4. Train
+config = FineTuningConfig(
+    strategy="lora",
+    task="binding_affinity",
+    lora_rank=8,
+)
+trainer = Trainer(lora_model, config, train_loader, val_loader)
+trainer.train()
+
+# 5. Save lightweight LoRA weights
+lora_model.save_lora_weights("./lora_weights.pt")
+```
+
+### Module Overview
+
+```
+finetuning/
+├── configs/           # Configuration classes
+│   ├── base_config.py      # FineTuningConfig, ModelConfig, TrainingConfig
+│   ├── lora_config.py      # LoRA-specific configuration
+│   └── task_config.py      # Task-specific configuration
+├── modules/           # Fine-tuning modules
+│   ├── lora.py             # LoRA implementation (PyTorch & JAX)
+│   ├── adapter.py          # Adapter modules
+│   └── prompt_tuning.py    # Prompt tuning
+├── heads/             # Task-specific prediction heads
+│   ├── affinity_head.py    # Binding affinity (Boltz-2 style)
+│   ├── property_head.py    # Protein property prediction
+│   └── contact_head.py     # Contact prediction
+├── trainers/          # Training utilities
+│   ├── trainer.py          # Main trainer class
+│   └── callbacks.py        # Training callbacks
+├── data/              # Data utilities
+│   ├── datasets.py         # Dataset classes
+│   └── transforms.py       # Data augmentation
+└── utils/             # Utility functions
+    ├── checkpoint.py       # Model checkpointing
+    └── metrics.py          # Evaluation metrics (lDDT, TM-score, etc.)
+```
+
+---
 ## Blogs 
 - [DeepMind: AlphaFold-Using-AI-for-scientific-discovery](https://deepmind.com/blog/article/AlphaFold-Using-AI-for-scientific-discovery)
 - [DeepMind: alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology](https://deepmind.com/blog/article/alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology)
