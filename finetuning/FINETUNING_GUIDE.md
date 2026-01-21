@@ -1,413 +1,529 @@
 # Fine-tuning Guide for Protein Structure Prediction Models
 
-This guide covers fine-tuning AlphaFold2, AlphaFold3, Boltz-1, and Boltz-2 for various downstream tasks.
+Comprehensive fine-tuning support for AlphaFold2, AlphaFold3, Boltz-1, and Boltz-2.
+
+**Inspired by ProteinBase.com business logic** - Supporting all major protein analysis tasks.
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Supported Models](#supported-models)
-3. [Fine-tuning Strategies](#fine-tuning-strategies)
-4. [Task Types](#task-types)
-5. [Quick Start](#quick-start)
-6. [Configuration](#configuration)
-7. [Examples](#examples)
+1. [Supported Tasks Overview](#supported-tasks-overview)
+2. [Task Categories](#task-categories)
+3. [Quick Start](#quick-start)
+4. [Configuration](#configuration)
+5. [Examples by Task](#examples-by-task)
+6. [Best Practices](#best-practices)
 
-## Overview
+---
 
-Fine-tuning allows you to adapt pretrained protein structure prediction models to specific tasks or domains:
+## Supported Tasks Overview
 
-- **Domain-specific**: Antibodies, membrane proteins, enzymes
-- **Task-specific**: Binding affinity, stability, solubility
-- **Data-efficient**: Few-shot learning for rare protein families
+| Category | Tasks | Applications |
+|----------|-------|--------------|
+| **Drug Discovery** | Binding Affinity, Virtual Screening, ADMET | Lead optimization, Hit identification |
+| **Protein Engineering** | Stability, Solubility, Mutation Effects | Enzyme optimization, Therapeutic proteins |
+| **Antibody Design** | Affinity Maturation, Humanization, Developability | Biologics development |
+| **Enzyme Engineering** | Activity, Specificity, Directed Evolution | Industrial enzymes, Biocatalysis |
+| **Protein-Protein Interaction** | Binding, Interface, Hot Spots | Drug targets, Signaling pathways |
+| **Function Prediction** | GO Terms, EC Numbers, Localization | Annotation, Discovery |
+| **Immunology** | B-cell Epitopes, T-cell Epitopes, Immunogenicity | Vaccine design, Therapeutic safety |
 
-### When to Fine-tune
+---
 
-| Scenario | Recommended Strategy |
-|----------|---------------------|
-| Small dataset (<1000 samples) | LoRA or Adapter |
-| Large dataset (>10000 samples) | Full fine-tuning or Freeze backbone |
-| New prediction task | Head-only fine-tuning |
-| Domain adaptation | LoRA with domain data |
+## Task Categories
 
-## Supported Models
+### 1. Drug Discovery
 
-| Model | Framework | Fine-tuning Support |
-|-------|-----------|-------------------|
-| AlphaFold2 | JAX/Haiku | ✅ Full, Head-only, LoRA |
-| AlphaFold3 | JAX/Haiku | ✅ Full, Head-only, LoRA |
-| Boltz-1 | PyTorch | ✅ Full, LoRA, Adapter |
-| Boltz-2 | PyTorch | ✅ Full, LoRA, Adapter |
-| OpenFold | PyTorch | ✅ Full, LoRA |
-| ESMFold | PyTorch | ✅ Full, LoRA |
-
-## Fine-tuning Strategies
-
-### 1. LoRA (Low-Rank Adaptation)
-
-Most parameter-efficient method. Decomposes weight updates into low-rank matrices.
-
-```python
-from finetuning import FineTuningConfig, LoRAModule
-
-config = FineTuningConfig(
-    strategy="lora",
-    lora_rank=8,
-    lora_alpha=16.0,
-    lora_target_modules=["q_proj", "k_proj", "v_proj"]
-)
-```
-
-**Pros**: Very few trainable parameters (~0.1% of model)
-**Cons**: May not reach full fine-tuning performance
-
-### 2. Adapter
-
-Insert small bottleneck modules between layers.
-
-```python
-config = FineTuningConfig(
-    strategy="adapter",
-    adapter_hidden_dim=64,
-)
-```
-
-**Pros**: Modular, can add multiple adapters
-**Cons**: Slightly increases inference latency
-
-### 3. Head-only
-
-Only train the prediction heads, freeze the backbone.
-
-```python
-config = FineTuningConfig(
-    strategy="head_only",
-    freeze_embeddings=True,
-    freeze_evoformer_layers=48,  # Freeze all Evoformer layers
-)
-```
-
-**Pros**: Fast, prevents catastrophic forgetting
-**Cons**: Limited adaptation capability
-
-### 4. Full Fine-tuning
-
-Train all parameters (use with caution).
-
-```python
-config = FineTuningConfig(
-    strategy="full",
-    freeze_evoformer_layers=24,  # Optionally freeze early layers
-)
-```
-
-**Pros**: Maximum adaptation capability
-**Cons**: Requires large dataset, risk of catastrophic forgetting
-
-## Task Types
-
-### Binding Affinity Prediction
-
+#### Binding Affinity Prediction
 Predict protein-ligand binding strength (pKd, pIC50, ΔG).
 
 ```python
-from finetuning.heads import AffinityHead, AffinityHeadConfig
+from finetuning.configs import BindingAffinityConfig
+from finetuning.heads import AffinityHead
 
-head_config = AffinityHeadConfig(
-    single_channel=384,
-    pair_channel=128,
-    hidden_dim=256,
-    use_gaussian_smearing=True,
+config = BindingAffinityConfig(
+    affinity_type="pic50",
+    use_pocket_features=True,
+    ligand_representation="graph",
 )
-
-affinity_head = AffinityHead(head_config)
 ```
 
-### Property Prediction
+**Datasets**: PDBbind, BindingDB, ChEMBL
 
-Predict protein properties (stability, solubility, expression).
+#### Virtual Screening
+Rank compounds by predicted binding.
 
 ```python
-from finetuning.heads import PropertyHead, PropertyHeadConfig
+from finetuning.configs import VirtualScreeningConfig
 
-head_config = PropertyHeadConfig(
-    num_properties=3,  # stability, solubility, expression
-    pooling_strategy="attention",
+config = VirtualScreeningConfig(
+    activity_threshold=6.0,  # pIC50 threshold
+    use_decoys=True,
 )
-
-property_head = PropertyHead(head_config)
 ```
 
-### Contact Prediction
+**Metrics**: AUROC, AUPRC, Enrichment Factors (EF1%, EF5%)
 
-Predict residue-residue contacts.
+---
+
+### 2. Protein Engineering
+
+#### Stability Prediction
+Predict thermodynamic stability and thermal stability.
 
 ```python
-from finetuning.heads import ContactHead, ContactHeadConfig
+from finetuning.configs import StabilityConfig
 
-head_config = ContactHeadConfig(
-    contact_threshold=8.0,  # Angstroms
-    min_sequence_separation=6,
+config = StabilityConfig(
+    stability_type="ddg",  # or "tm", "t50"
+    use_evolutionary_features=True,
+)
+```
+
+**Datasets**: ProTherm, FireProtDB, Megascale
+
+#### Mutation Effect Prediction
+Predict ΔΔG, fitness, or pathogenicity.
+
+```python
+from finetuning.configs import MutationEffectConfig
+
+config = MutationEffectConfig(
+    effect_type="ddg",
+    max_mutations=10,
+    predict_epistasis=False,
+)
+```
+
+**Datasets**: ProteinGym, DMS datasets, ClinVar
+
+---
+
+### 3. Antibody Design
+
+#### Affinity Maturation
+Optimize antibody binding affinity.
+
+```python
+from finetuning.configs import AntibodyOptimizationConfig
+from finetuning.heads import AntibodyAffinityHead
+
+config = AntibodyOptimizationConfig(
+    optimization_target="affinity",
+    optimize_regions=["cdr_h3", "cdr_l3"],
+    preserve_framework=True,
 )
 
-contact_head = ContactHead(head_config)
+head = AntibodyAffinityHead(AntibodyHeadConfig())
 ```
+
+#### Humanization
+Humanize non-human antibodies while preserving binding.
+
+```python
+from finetuning.configs import HumanizationConfig
+from finetuning.heads import HumannessHead
+
+config = HumanizationConfig(
+    method="cdr_grafting",
+    humanness_threshold=0.8,
+)
+```
+
+#### Developability Assessment
+Predict manufacturability risks.
+
+```python
+from finetuning.configs import AntibodyDevelopabilityConfig
+from finetuning.heads import DevelopabilityHead
+
+config = AntibodyDevelopabilityConfig(
+    properties=[
+        "aggregation_propensity",
+        "viscosity",
+        "immunogenicity",
+        "expression",
+    ],
+)
+```
+
+**Output Properties**:
+- Aggregation propensity
+- Viscosity at high concentration
+- Self-interaction
+- Polyreactivity
+- Clearance rate
+- Immunogenicity risk
+- Expression level
+- Stability
+
+---
+
+### 4. Enzyme Engineering
+
+#### Activity Prediction
+Predict kinetic parameters (kcat, Km, kcat/Km).
+
+```python
+from finetuning.configs import EnzymeActivityConfig
+from finetuning.heads import EnzymeActivityHead
+
+config = EnzymeActivityConfig(
+    activity_type="kcat_km",
+    use_substrate_features=True,
+    include_conditions=True,
+)
+
+head = EnzymeActivityHead(EnzymeHeadConfig())
+```
+
+#### Substrate Specificity
+Predict activity across substrate libraries.
+
+```python
+from finetuning.configs import EnzymeSpecificityConfig
+from finetuning.heads import EnzymeSpecificityHead
+
+config = EnzymeSpecificityConfig(
+    specificity_type="substrate",
+    use_docking_features=True,
+)
+```
+
+#### Directed Evolution Guidance
+Score mutations for activity improvement.
+
+```python
+from finetuning.configs import EnzymeEngineeringConfig
+from finetuning.heads import EnzymeEvolutionHead
+
+config = EnzymeEngineeringConfig(
+    optimization_target="activity",
+    focus_active_site=True,
+)
+```
+
+**Datasets**: BRENDA, SABIO-RK, UniProt enzyme data
+
+---
+
+### 5. Protein-Protein Interaction
+
+#### PPI Binding Prediction
+Predict binding affinity for protein complexes.
+
+```python
+from finetuning.configs import PPIBindingConfig
+from finetuning.heads import PPIBindingHead
+
+config = PPIBindingConfig(
+    binding_type="kd",
+    use_interface_features=True,
+)
+```
+
+#### Interface Prediction
+Identify interface residues.
+
+```python
+from finetuning.configs import PPIInterfaceConfig
+from finetuning.heads import PPIInterfaceHead
+
+config = PPIInterfaceConfig(
+    interface_threshold=5.0,  # Å
+    use_coevolution=True,
+)
+```
+
+#### Hot Spot Prediction
+Identify binding energy hot spots.
+
+```python
+from finetuning.configs import PPIHotspotConfig
+from finetuning.heads import PPIHotspotHead
+
+config = PPIHotspotConfig(
+    ddg_threshold=2.0,  # kcal/mol
+)
+```
+
+**Datasets**: PDBbind (protein-protein), SKEMPI, ASEdb
+
+---
+
+### 6. Function Prediction
+
+#### GO Term Prediction
+Predict Gene Ontology annotations.
+
+```python
+from finetuning.configs import FunctionPredictionConfig
+from finetuning.heads import GOPredictionHead
+
+config = FunctionPredictionConfig(
+    ontology="go_mf",  # go_mf, go_bp, go_cc
+    use_hierarchy=True,
+)
+```
+
+**Output**: Multi-label predictions for MF, BP, CC terms
+
+#### EC Number Prediction
+Predict enzyme classification.
+
+```python
+from finetuning.heads import ECNumberHead
+
+head = ECNumberHead(FunctionHeadConfig())
+```
+
+**Output**: Hierarchical EC predictions (X.X.X.X)
+
+#### Subcellular Localization
+Predict where proteins are located.
+
+```python
+from finetuning.configs import LocalizationConfig
+from finetuning.heads import LocalizationHead
+
+config = LocalizationConfig(
+    localizations=[
+        "nucleus", "cytoplasm", "membrane",
+        "mitochondria", "extracellular",
+    ],
+)
+```
+
+**Datasets**: UniProt, DeepLoc, TargetP training data
+
+---
+
+### 7. Immunology / Epitopes
+
+#### B-cell Epitope Prediction
+Predict antibody binding sites (conformational epitopes).
+
+```python
+from finetuning.configs import BcellEpitopeConfig
+from finetuning.heads import BcellEpitopeHead
+
+config = BcellEpitopeConfig(
+    epitope_type="conformational",
+    use_accessibility=True,
+)
+```
+
+**Features**: Surface accessibility, Flexibility, Protrusion, Antigenicity
+
+#### T-cell Epitope / MHC Binding
+Predict peptide-MHC binding.
+
+```python
+from finetuning.configs import TcellEpitopeConfig
+from finetuning.heads import TcellEpitopeHead
+
+config = TcellEpitopeConfig(
+    mhc_class="I",
+    alleles=["HLA-A*02:01", "HLA-A*01:01"],
+    predict_immunogenicity=True,
+)
+```
+
+#### Therapeutic Immunogenicity
+Assess immunogenicity risk for biologics.
+
+```python
+from finetuning.configs import ImmunogenicityConfig
+from finetuning.heads import ImmunogenicityHead
+
+config = ImmunogenicityConfig(
+    predict_tcell_response=True,
+    predict_ada=True,  # Anti-drug antibodies
+)
+```
+
+**Output**: Overall risk score + component risks (T-cell, B-cell, aggregation)
+
+**Datasets**: IEDB, NetMHC training data
+
+---
 
 ## Quick Start
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/chenxingqiang/alphafold-notebooks.git
 cd alphafold-notebooks
 
-# Install dependencies
 pip install torch>=2.0 numpy scipy
-
-# Optional: Install for distributed training
-pip install deepspeed wandb
 ```
 
 ### Basic Usage
 
 ```python
 from finetuning import FineTuningConfig, Trainer
-from finetuning.modules import LoRAModule
-from finetuning.heads import AffinityHead
+from finetuning.configs import get_task_config
+from finetuning.data import get_dataset
 
-# 1. Load pretrained model
-model = load_pretrained_boltz2()
+# 1. Choose task
+task_config = get_task_config("binding_affinity")
 
-# 2. Apply LoRA
-lora_model = LoRAModule(
-    model,
-    rank=8,
-    alpha=16.0,
-    target_modules=["q_proj", "k_proj", "v_proj"],
-)
-
-# 3. Add task head
-affinity_head = AffinityHead(AffinityHeadConfig())
-lora_model.add_head(affinity_head)
-
-# 4. Configure training
+# 2. Configure fine-tuning
 config = FineTuningConfig(
     strategy="lora",
     task="binding_affinity",
-    training=TrainingConfig(
-        learning_rate=5e-5,
-        max_steps=10000,
-        batch_size=1,
-        gradient_accumulation_steps=8,
-    ),
+    lora_rank=8,
 )
 
-# 5. Train
-trainer = Trainer(lora_model, config, train_dataloader, val_dataloader)
+# 3. Load data
+train_dataset = get_dataset("affinity", data_path="./data/train")
+train_loader = DataLoader(train_dataset, batch_size=1)
+
+# 4. Train
+trainer = Trainer(model, config, train_loader)
 trainer.train()
 ```
 
+### List Available Tasks
+
+```python
+from finetuning.configs.task_config import list_tasks_by_category
+
+categories = list_tasks_by_category()
+for category, tasks in categories.items():
+    print(f"{category}: {tasks}")
+```
+
+Output:
+```
+drug_discovery: ['binding_affinity', 'virtual_screening', 'admet']
+engineering: ['stability', 'solubility', 'mutation_ddg', 'mutation_fitness']
+antibody: ['antibody_affinity', 'antibody_developability', 'humanization']
+enzyme: ['enzyme_activity', 'enzyme_specificity', 'enzyme_evolution']
+ppi: ['ppi_binding', 'ppi_interface', 'ppi_hotspot']
+function: ['function_go', 'function_ec', 'localization']
+immunology: ['bcell_epitope', 'tcell_epitope', 'immunogenicity']
+```
+
+---
+
 ## Configuration
 
-### Full Configuration Example
+### Full Example
 
 ```yaml
 # config.yaml
 model:
   model_type: boltz2
-  pretrained_path: /path/to/boltz2_weights.pt
+  pretrained_path: /path/to/weights
   precision: bf16
 
 training:
   learning_rate: 5e-5
-  weight_decay: 0.01
-  warmup_steps: 1000
   max_steps: 50000
   batch_size: 1
   gradient_accumulation_steps: 8
-  lr_scheduler: warmup_cosine
-  output_dir: ./finetuning_output
 
 strategy: lora
 task: binding_affinity
 
 lora_rank: 8
 lora_alpha: 16.0
-lora_dropout: 0.1
 lora_target_modules:
   - q_proj
   - k_proj
   - v_proj
-  - o_proj
 
 loss_weights:
   affinity: 1.0
   fape: 0.1
-
-seed: 42
 ```
 
-### Loading Configuration
+---
+
+## Best Practices
+
+### 1. Task-Specific Learning Rates
+
+| Task | Recommended LR |
+|------|---------------|
+| Binding Affinity | 5e-5 |
+| Stability (ΔΔG) | 1e-4 |
+| Antibody Optimization | 5e-5 |
+| Function Prediction | 1e-4 |
+| Epitope Prediction | 5e-5 |
+
+### 2. Data Requirements
+
+| Task | Minimum Samples | Recommended |
+|------|----------------|-------------|
+| Binding Affinity | 500 | 5,000+ |
+| Mutation Effects | 1,000 | 10,000+ |
+| Antibody Design | 100 | 1,000+ |
+| Function (GO) | 10,000 | 100,000+ |
+
+### 3. Evaluation Metrics by Task
+
+| Task | Primary Metrics |
+|------|----------------|
+| Binding Affinity | RMSE, Pearson, Spearman |
+| Virtual Screening | AUROC, EF1%, BEDROC |
+| Mutation Effects | Spearman, AUROC (pathogenicity) |
+| Function | F1-max, AUROC, AUPRC |
+| Epitope | AUROC, Precision@L/5 |
+
+### 4. Multi-task Learning
+
+Fine-tune for multiple related tasks simultaneously:
 
 ```python
-config = FineTuningConfig.from_yaml("config.yaml")
-```
-
-## Examples
-
-### Example 1: Fine-tune Boltz-2 for Drug Binding Affinity
-
-```python
-from finetuning import FineTuningConfig, get_preset_config
-from finetuning.data import AffinityDataset
-from torch.utils.data import DataLoader
-
-# Load preset configuration
-config = get_preset_config("boltz2_affinity_lora")
-
-# Prepare data
-train_dataset = AffinityDataset(
-    data_path="./data/pdbbind/train",
-    affinity_file="./data/pdbbind/affinities.csv",
-)
-val_dataset = AffinityDataset(
-    data_path="./data/pdbbind/val",
-    affinity_file="./data/pdbbind/affinities.csv",
-)
-
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=1)
-
-# Train
-trainer = Trainer(model, config, train_loader, val_loader)
-trainer.train()
-
-# Save LoRA weights only (small file)
-trainer.model.save_lora_weights("./lora_weights.pt")
-```
-
-### Example 2: Multi-task Property Prediction
-
-```python
-from finetuning.heads import PropertyHead, PropertyHeadConfig
-
-# Configure for multiple properties
-head_config = PropertyHeadConfig(
-    num_properties=5,
-    property_names=["stability", "solubility", "aggregation", "expression", "half_life"],
-    predict_uncertainty=True,
-)
-
-head = PropertyHead(head_config)
-
-# Training will optimize all properties jointly
-```
-
-### Example 3: Few-shot Domain Adaptation
-
-```python
-# For few-shot scenarios, use aggressive LoRA
 config = FineTuningConfig(
-    strategy="lora",
-    lora_rank=16,  # Higher rank for more capacity
-    lora_alpha=32.0,
-    training=TrainingConfig(
-        learning_rate=1e-4,  # Higher LR for few-shot
-        max_steps=1000,  # Fewer steps
-        warmup_steps=100,
-    ),
+    task="multi_task",
+    loss_weights={
+        "affinity": 1.0,
+        "stability": 0.5,
+        "contact": 0.3,
+    },
 )
 ```
 
-## Evaluation
+---
 
-### Compute Metrics
+## Architecture Overview
 
-```python
-from finetuning.utils import compute_metrics, evaluate_model
-
-# Evaluate on test set
-metrics = evaluate_model(
-    model,
-    test_dataloader,
-    metrics=["rmse", "mae", "pearson", "spearman", "r2"],
-)
-
-print(f"RMSE: {metrics['rmse']:.4f}")
-print(f"Pearson: {metrics['pearson']:.4f}")
+```
+finetuning/
+├── configs/
+│   ├── base_config.py       # Core configuration classes
+│   ├── task_config.py       # 25+ task configurations
+│   └── lora_config.py       # LoRA settings
+├── heads/
+│   ├── affinity_head.py     # Drug-target binding
+│   ├── antibody_head.py     # Antibody optimization
+│   ├── ppi_head.py          # Protein-protein interaction
+│   ├── enzyme_head.py       # Enzyme engineering
+│   ├── function_head.py     # GO/EC prediction
+│   └── epitope_head.py      # Immunology
+├── data/
+│   └── datasets.py          # Task-specific datasets
+├── modules/
+│   ├── lora.py              # LoRA implementation
+│   └── adapter.py           # Adapter modules
+└── trainers/
+    └── trainer.py           # Training loop
 ```
 
-### Structure Quality Metrics
+---
 
-```python
-from finetuning.utils.metrics import compute_lddt, compute_tm_score
+## Citation
 
-# Per-residue lDDT
-lddt_scores = compute_lddt(predicted_coords, true_coords)
-print(f"Mean lDDT: {lddt_scores.mean():.4f}")
+If you use this fine-tuning framework, please cite:
 
-# TM-score
-tm = compute_tm_score(predicted_coords, true_coords)
-print(f"TM-score: {tm:.4f}")
+```bibtex
+@software{alphafold_codec_finetuning,
+  title={AlphaFold Codec: Fine-tuning Framework},
+  author={Chen, Xingqiang and Contributors},
+  year={2026},
+  url={https://github.com/chenxingqiang/alphafold-notebooks}
+}
 ```
-
-## Tips and Best Practices
-
-### 1. Learning Rate Selection
-
-| Strategy | Recommended LR |
-|----------|---------------|
-| Full fine-tuning | 1e-5 to 5e-5 |
-| LoRA | 5e-5 to 1e-4 |
-| Adapter | 1e-4 to 5e-4 |
-| Head-only | 1e-4 to 1e-3 |
-
-### 2. Prevent Overfitting
-
-- Use weight decay (0.01-0.1)
-- Enable dropout in LoRA (0.1)
-- Early stopping based on validation loss
-- Data augmentation (structure rotation, MSA subsampling)
-
-### 3. Memory Optimization
-
-```python
-# Enable gradient checkpointing
-config.training.gradient_checkpointing = True
-
-# Use mixed precision
-config.model.precision = "bf16"
-
-# Gradient accumulation for large effective batch size
-config.training.gradient_accumulation_steps = 16
-```
-
-### 4. Distributed Training
-
-```bash
-# Launch distributed training
-torchrun --nproc_per_node=4 train.py --config config.yaml
-```
-
-## Troubleshooting
-
-### Out of Memory
-
-- Reduce batch size
-- Enable gradient checkpointing
-- Use LoRA instead of full fine-tuning
-- Reduce sequence length
-
-### Training Instability
-
-- Lower learning rate
-- Increase warmup steps
-- Clip gradients (max_grad_norm=1.0)
-- Check for NaN in inputs
-
-### Poor Performance
-
-- Try higher LoRA rank
-- Increase training steps
-- Add more data augmentation
-- Verify data preprocessing
