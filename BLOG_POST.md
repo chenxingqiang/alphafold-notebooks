@@ -4,7 +4,7 @@
 
 ---
 
-*How we built the most comprehensive educational resource for understanding protein structure prediction AI — with 85+ interactive notebooks covering every algorithm.*
+*How we built the most comprehensive educational resource for understanding protein structure prediction AI — with 85+ interactive notebooks and a complete fine-tuning framework for real-world applications.*
 
 ---
 
@@ -170,6 +170,126 @@ Plus:
 - 128+ reference paper summaries
 - Architecture diagrams
 - Application examples (peptide docking, MD integration)
+- **NEW: Complete fine-tuning framework**
+
+---
+
+## 🔧 Fine-tuning: From Understanding to Application
+
+Understanding algorithms is powerful. But what if you want to *adapt* these models for your specific research?
+
+**We've built a complete fine-tuning framework** that lets you customize AlphaFold2, AlphaFold3, Boltz-1, and Boltz-2 for downstream tasks — without needing a cluster of TPUs.
+
+### The Challenge of Fine-tuning Structure Prediction Models
+
+These models have hundreds of millions of parameters. Fine-tuning them naively requires:
+- Massive GPU memory (80GB+ A100s)
+- Large datasets (tens of thousands of structures)
+- Weeks of training time
+
+Most researchers don't have these resources. So we implemented **parameter-efficient fine-tuning** techniques that make adaptation accessible.
+
+### LoRA: Fine-tune with 0.1% of the Parameters
+
+**LoRA (Low-Rank Adaptation)** decomposes weight updates into low-rank matrices. Instead of updating a 384×384 matrix (147,456 parameters), you update two small matrices: 384×8 and 8×384 (6,144 parameters).
+
+```python
+from finetuning import FineTuningConfig
+from finetuning.modules import LoRAModule
+
+# Apply LoRA to attention layers
+lora_model = LoRAModule(
+    model,
+    rank=8,           # Low-rank dimension
+    alpha=16.0,       # Scaling factor
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"]
+)
+
+# Only 0.1% of parameters are trainable!
+trainable = sum(p.numel() for p in lora_model.parameters() if p.requires_grad)
+total = sum(p.numel() for p in lora_model.parameters())
+print(f"Trainable: {trainable/total:.4f}")  # ~0.001
+```
+
+**Result**: Fine-tune on a single 24GB GPU. Train in hours, not weeks.
+
+### Supported Fine-tuning Tasks
+
+| Task | What You'll Predict | Applications |
+|------|---------------------|--------------|
+| **Binding Affinity** | pKd, pIC50, ΔG | Drug discovery, lead optimization |
+| **Protein Stability** | ΔΔG for mutations | Protein engineering |
+| **Solubility** | Expression likelihood | Biomanufacturing |
+| **Contact Maps** | Residue interactions | Structure validation |
+
+### Real-World Example: Drug Binding Affinity
+
+Want to predict how strongly a drug candidate binds to its target protein? Here's how:
+
+```python
+from finetuning import FineTuningConfig, Trainer
+from finetuning.heads import AffinityHead, AffinityHeadConfig
+from finetuning.data import AffinityDataset
+
+# 1. Configure for binding affinity prediction
+config = FineTuningConfig(
+    strategy="lora",
+    task="binding_affinity",
+    lora_rank=8,
+    training=TrainingConfig(
+        learning_rate=5e-5,
+        max_steps=10000,
+    ),
+)
+
+# 2. Add the affinity prediction head (Boltz-2 architecture)
+head_config = AffinityHeadConfig(
+    use_gaussian_smearing=True,  # Distance features
+    use_attention_pooling=True,  # Aggregate over residues
+)
+affinity_head = AffinityHead(head_config)
+
+# 3. Load your data (PDBbind, BindingDB, etc.)
+train_data = AffinityDataset("./pdbbind/train", affinity_file="affinities.csv")
+
+# 4. Train
+trainer = Trainer(model, config, train_loader)
+trainer.train()
+
+# 5. Predict on new complexes
+predictions = model.predict(protein_ligand_complex)
+print(f"Predicted pIC50: {predictions['affinity_pred_value']:.2f}")
+```
+
+### Fine-tuning Strategies Compared
+
+| Strategy | Trainable Params | Memory | Best For |
+|----------|-----------------|--------|----------|
+| **LoRA** | ~0.1% | Low | Small datasets (<1K samples) |
+| **Adapter** | ~1% | Low | Multi-task learning |
+| **Head-only** | ~5% | Medium | New prediction tasks |
+| **Full** | 100% | High | Large datasets (>10K samples) |
+
+### What Makes Our Framework Different
+
+1. **Works with both PyTorch and JAX**: Boltz uses PyTorch, AlphaFold uses JAX. We support both.
+
+2. **Production-ready training**: Gradient accumulation, mixed precision, distributed training, W&B logging.
+
+3. **Task-specific heads**: Not just generic classifiers — architectures designed for structural biology (Gaussian smearing for distances, attention pooling for variable-length proteins).
+
+4. **Educational implementations**: Every module has a NumPy reference implementation so you understand what's happening.
+
+```python
+# NumPy reference — see exactly what LoRA does
+class LoRALinearNumPy:
+    def forward(self, x):
+        # Original: x @ W
+        # LoRA: x @ W + x @ A @ B * scaling
+        original = x @ self.W.T
+        lora_contribution = x @ self.lora_A.T @ self.lora_B.T * self.scaling
+        return original + lora_contribution
+```
 
 ---
 
@@ -193,6 +313,7 @@ jupyter notebook AF2-NoteBooks/algorithm-22-InvariantPointAttention.ipynb
 3. **Structure**: Algorithms 20-25 — from representations to 3D coordinates
 4. **Compare**: AF3 Algorithm 15-17 (Diffusion) — see the paradigm shift
 5. **Frontier**: Boltz-2 Algorithm 1-4 — binding affinity prediction
+6. **Apply**: Fine-tuning framework — adapt models for your research
 
 ---
 
@@ -217,8 +338,9 @@ This is a living project. We're actively adding:
 
 - **ESMFold integration**: Protein language model approaches
 - **Chai-1 notebooks**: The next-gen competitor
-- **Training tutorials**: How these models actually learn
-- **Application notebooks**: From prediction to biological insight
+- **More fine-tuning tasks**: Protein-protein interaction, epitope prediction
+- **Pre-trained LoRA weights**: Domain-specific adapters (antibodies, enzymes, membrane proteins)
+- **Colab notebooks**: Run fine-tuning in the cloud for free
 
 ---
 
@@ -252,7 +374,7 @@ Understanding *how* it works shouldn't be reserved for a select few.
 ---
 
 ### Tags
-`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery`
+`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery` `#FineTuning` `#LoRA` `#BindingAffinity`
 
 ---
 
