@@ -199,19 +199,122 @@ We provide a comprehensive **fine-tuning framework** for adapting protein struct
 | **Head-only** | ~5% | New prediction tasks |
 | **Full** | 100% | Large datasets, maximum performance |
 
-### Supported Tasks
+### Supported Tasks (50+ Task Types)
 
-- **Binding Affinity**: Protein-ligand binding prediction (pKd, pIC50, ΔG)
-- **Property Prediction**: Stability, solubility, expression, aggregation
-- **Contact Prediction**: Residue-residue contact maps
-- **Mutation Effects**: ΔΔG, fitness landscape prediction
+We support comprehensive task coverage inspired by production platforms like ProteinBase.com:
+
+<details>
+<summary><b>💊 Drug Discovery</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Binding Affinity | pKd, pIC50, ΔG, Ki | Lead optimization, SAR |
+| Virtual Screening | Hit probability, ranking | HTS prioritization |
+| ADMET | Absorption, metabolism, toxicity | Compound triage |
+
+</details>
+
+<details>
+<summary><b>🔬 Protein Engineering</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Stability | ΔΔG, Tm shift | Thermostabilization |
+| Solubility | Expression score | Biomanufacturing |
+| Mutation Effects | Fitness, pathogenicity | Variant analysis |
+
+</details>
+
+<details>
+<summary><b>🧫 Antibody Design</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Affinity Maturation | CDR binding, ΔΔG | Therapeutic optimization |
+| Humanization | Humanness score | Drug development |
+| Developability | Aggregation, viscosity | Manufacturing |
+
+</details>
+
+<details>
+<summary><b>⚗️ Enzyme Engineering</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Activity | kcat, Km, kcat/Km | Catalyst design |
+| Specificity | Substrate profiles | Industrial enzymes |
+| Directed Evolution | Fitness landscapes | Protein engineering |
+
+</details>
+
+<details>
+<summary><b>🔗 Protein-Protein Interactions</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| PPI Binding | Kd, interface stability | Complex analysis |
+| Interface Prediction | Contact residues | Structure analysis |
+| Hot Spot Detection | ΔΔG per residue | PPI drug targets |
+
+</details>
+
+<details>
+<summary><b>🧬 Function Prediction</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| GO Terms | MF, BP, CC | Annotation |
+| EC Numbers | Enzyme classification | Function discovery |
+| Localization | Subcellular compartment | Systems biology |
+
+</details>
+
+<details>
+<summary><b>🛡️ Immunology</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| B-cell Epitopes | Epitope probability | Vaccine design |
+| T-cell Epitopes | MHC binding | Immunotherapy |
+| Immunogenicity | ADA risk | Drug safety |
+
+</details>
+
+<details>
+<summary><b>📊 Structure Quality</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Confidence | pLDDT, pAE, pTM | Model validation |
+| Disorder | IDR prediction | Structure analysis |
+| Contacts | Distance maps | Validation |
+
+</details>
 
 ### Quick Start
 
 ```python
-from finetuning import FineTuningConfig, Trainer
+from finetuning import TaskRegistry, create_finetuning_pipeline
 from finetuning.modules import LoRAModule
 from finetuning.heads import AffinityHead
+
+# Option 1: Use Task Registry (Recommended)
+# List all available tasks
+print(TaskRegistry.list_all_tasks())  # 50+ tasks
+
+# Get task info and recommendations
+info = TaskRegistry.get_task_info("binding_affinity")
+print(f"Recommended LoRA rank: {info.recommended_rank}")
+
+# Create pipeline automatically
+pipeline = create_finetuning_pipeline(
+    task="binding_affinity",
+    base_model=model,
+    strategy="lora",
+)
+
+# Option 2: Manual Setup
+from finetuning import FineTuningConfig, Trainer
 
 # 1. Load pretrained model
 model = load_pretrained_boltz2()
@@ -242,24 +345,33 @@ finetuning/
 ├── configs/           # Configuration classes
 │   ├── base_config.py      # FineTuningConfig, ModelConfig, TrainingConfig
 │   ├── lora_config.py      # LoRA-specific configuration
-│   └── task_config.py      # Task-specific configuration
+│   └── task_config.py      # 25+ task configurations (ProteinBase-style)
 ├── modules/           # Fine-tuning modules
 │   ├── lora.py             # LoRA implementation (PyTorch & JAX)
 │   ├── adapter.py          # Adapter modules
 │   └── prompt_tuning.py    # Prompt tuning
-├── heads/             # Task-specific prediction heads
+├── heads/             # Task-specific prediction heads (15+ specialized heads)
 │   ├── affinity_head.py    # Binding affinity (Boltz-2 style)
 │   ├── property_head.py    # Protein property prediction
-│   └── contact_head.py     # Contact prediction
+│   ├── contact_head.py     # Contact prediction
+│   ├── antibody_head.py    # Affinity maturation, humanization, developability
+│   ├── ppi_head.py         # PPI binding, interface, hot spots
+│   ├── enzyme_head.py      # Activity, specificity, evolution
+│   ├── function_head.py    # GO terms, EC numbers, localization
+│   └── epitope_head.py     # B-cell, T-cell epitopes, immunogenicity
 ├── trainers/          # Training utilities
 │   ├── trainer.py          # Main trainer class
-│   └── callbacks.py        # Training callbacks
+│   ├── distributed_trainer.py  # Multi-GPU training
+│   └── callbacks.py        # Training callbacks (EarlyStopping, Wandb, etc.)
 ├── data/              # Data utilities
-│   ├── datasets.py         # Dataset classes
-│   └── transforms.py       # Data augmentation
+│   ├── datasets.py         # 10+ dataset classes for all task types
+│   └── transforms.py       # Data augmentation (rotation, MSA dropout)
+├── examples/          # Tutorial notebooks
+│   └── finetuning_tutorial.ipynb  # Complete walkthrough
+├── registry.py        # Task registry and factory pattern
 └── utils/             # Utility functions
     ├── checkpoint.py       # Model checkpointing
-    └── metrics.py          # Evaluation metrics (lDDT, TM-score, etc.)
+    └── metrics.py          # Evaluation metrics (lDDT, TM-score, AUROC, etc.)
 ```
 
 ---

@@ -170,7 +170,8 @@ Plus:
 - 128+ reference paper summaries
 - Architecture diagrams
 - Application examples (peptide docking, MD integration)
-- **NEW: Complete fine-tuning framework**
+- **NEW: Complete fine-tuning framework with 50+ task types**
+- **NEW: Production-ready heads for drug discovery, antibody design, enzyme engineering, and more**
 
 ---
 
@@ -213,14 +214,86 @@ print(f"Trainable: {trainable/total:.4f}")  # ~0.001
 
 **Result**: Fine-tune on a single 24GB GPU. Train in hours, not weeks.
 
-### Supported Fine-tuning Tasks
+### Supported Fine-tuning Tasks: 50+ Task Types
 
-| Task | What You'll Predict | Applications |
-|------|---------------------|--------------|
-| **Binding Affinity** | pKd, pIC50, ΔG | Drug discovery, lead optimization |
-| **Protein Stability** | ΔΔG for mutations | Protein engineering |
-| **Solubility** | Expression likelihood | Biomanufacturing |
-| **Contact Maps** | Residue interactions | Structure validation |
+Inspired by production platforms like **ProteinBase.com**, we've built comprehensive support for real-world protein analysis applications:
+
+#### 💊 Drug Discovery
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **Binding Affinity** | pKd, pIC50, ΔG, Ki | Lead optimization, SAR analysis |
+| **Virtual Screening** | Hit probability, enrichment | High-throughput screening |
+| **ADMET** | Absorption, metabolism, toxicity | Compound prioritization |
+
+#### 🔬 Protein Engineering
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **Stability** | ΔΔG, Tm shift, aggregation | Thermostability optimization |
+| **Solubility** | Expression scores, aggregation risk | Biomanufacturing |
+| **Mutation Effects** | ΔΔG, fitness, pathogenicity | Variant analysis, mutagenesis |
+
+#### 🧫 Antibody Design
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **Affinity Maturation** | CDR binding, mutant ranking | Therapeutic optimization |
+| **Humanization** | Humanness scores, deimmunization | Drug development |
+| **Developability** | Aggregation, viscosity, expression | Manufacturing readiness |
+
+#### ⚗️ Enzyme Engineering
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **Activity** | kcat, Km, kcat/Km | Catalyst optimization |
+| **Specificity** | Substrate profiles, selectivity | Industrial applications |
+| **Directed Evolution** | Fitness landscapes, hot spots | Protein engineering |
+
+#### 🔗 Protein-Protein Interactions
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **PPI Binding** | Kd, interface stability | Complex analysis |
+| **Interface Prediction** | Contact residues, buried area | Structure analysis |
+| **Hot Spot Detection** | ΔΔG per residue, druggability | PPI drug targets |
+
+#### 🧬 Function Prediction
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **GO Terms** | Molecular function, biological process | Annotation |
+| **EC Numbers** | Enzyme classification | Function discovery |
+| **Localization** | Subcellular compartment | Systems biology |
+
+#### 🛡️ Immunology
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **B-cell Epitopes** | Linear/conformational epitopes | Vaccine design |
+| **T-cell Epitopes** | MHC-I/II binding, presentation | Immunotherapy |
+| **Immunogenicity** | Therapeutic immunogenicity | Drug safety |
+
+#### 📊 Structure Quality
+
+| Task | Predictions | Use Cases |
+|------|-------------|-----------|
+| **Confidence Metrics** | pLDDT, pAE, pTM, lDDT | Model validation |
+| **Disorder Prediction** | Intrinsically disordered regions | Structure analysis |
+| **Contact/Distance** | Residue-residue contacts, distance maps | Structure validation |
+
+```python
+# Example: Quick access to any task configuration
+from finetuning.configs import get_task_config, list_tasks_by_category
+
+# See all available tasks
+categories = list_tasks_by_category()
+print(categories["antibody"])  # ['affinity_maturation', 'humanization', 'developability']
+
+# Get optimized config for any task
+config = get_task_config("enzyme_activity")
+print(config.output_dim)  # 3 (kcat, Km, kcat_over_Km)
+```
 
 ### Real-World Example: Drug Binding Affinity
 
@@ -332,15 +405,83 @@ But the barrier to entry has been too high. You shouldn't need to read 600 pages
 
 ---
 
+## Real-World Examples: Beyond Binding Affinity
+
+### Example 2: Antibody Affinity Maturation
+
+```python
+from finetuning.heads import AntibodyAffinityHead, AntibodyHeadConfig
+from finetuning.data import AntibodyDataset
+
+# Configure for CDR-focused predictions
+config = AntibodyHeadConfig(
+    cdr_regions=["CDR-H3", "CDR-L3"],  # Focus on key binding regions
+    use_paratope_attention=True,
+    predict_developability=True,  # Also predict manufacturability
+)
+
+head = AntibodyAffinityHead(config)
+dataset = AntibodyDataset("./sabdab", heavy_chain_col="VH", light_chain_col="VL")
+
+# Train and predict affinity changes for CDR mutations
+predictions = model.predict(antibody_antigen_complex)
+print(f"Predicted ΔΔG: {predictions['ddg']:.2f} kcal/mol")
+print(f"Developability score: {predictions['developability']:.2f}")
+```
+
+### Example 3: Enzyme Activity Prediction
+
+```python
+from finetuning.heads import EnzymeActivityHead, EnzymeHeadConfig
+from finetuning.data import EnzymeDataset
+
+# Predict full kinetic parameters
+config = EnzymeHeadConfig(
+    output_dim=3,  # kcat, Km, kcat/Km
+    active_site_radius=8.0,  # Angstroms
+    use_substrate_features=True,
+)
+
+head = EnzymeActivityHead(config)
+dataset = EnzymeDataset("./brenda", activity_columns=["kcat", "Km"])
+
+# Predict for enzyme-substrate pair
+predictions = model.predict(enzyme_substrate_complex)
+print(f"Predicted kcat: {10**predictions['kcat']:.1f} s⁻¹")
+print(f"Predicted Km: {10**predictions['Km']:.1f} μM")
+```
+
+### Example 4: B-cell Epitope Prediction
+
+```python
+from finetuning.heads import BcellEpitopeHead, EpitopeHeadConfig
+from finetuning.data import EpitopeDataset
+
+# Predict conformational epitopes
+config = EpitopeHeadConfig(
+    epitope_type="conformational",
+    surface_threshold=25.0,  # SASA threshold
+    spatial_window=10.0,  # Angstroms
+)
+
+head = BcellEpitopeHead(config)
+# Per-residue epitope probability
+predictions = model.predict(antigen_structure)
+print(f"Top epitope residues: {predictions['epitope_residues']}")
+```
+
+---
+
 ## What's Next
 
 This is a living project. We're actively adding:
 
 - **ESMFold integration**: Protein language model approaches
 - **Chai-1 notebooks**: The next-gen competitor
-- **More fine-tuning tasks**: Protein-protein interaction, epitope prediction
-- **Pre-trained LoRA weights**: Domain-specific adapters (antibodies, enzymes, membrane proteins)
+- **Pre-trained LoRA weights**: Domain-specific adapters (antibodies, enzymes, GPCRs)
 - **Colab notebooks**: Run fine-tuning in the cloud for free
+- **Benchmark datasets**: Curated datasets for each task type
+- **Model zoo**: Pre-fine-tuned models for common applications
 
 ---
 
@@ -374,7 +515,7 @@ Understanding *how* it works shouldn't be reserved for a select few.
 ---
 
 ### Tags
-`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery` `#FineTuning` `#LoRA` `#BindingAffinity`
+`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery` `#FineTuning` `#LoRA` `#BindingAffinity` `#AntibodyDesign` `#EnzymeEngineering` `#ProteinEngineering` `#VaccineDesign` `#PPI`
 
 ---
 
