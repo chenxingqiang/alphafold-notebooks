@@ -39,43 +39,43 @@ class TaskType(str, Enum):
 @dataclass
 class ModelConfig:
     """Configuration for the base model."""
-    
+
     model_type: ModelType = ModelType.BOLTZ2
     """Type of model to fine-tune."""
-    
+
     pretrained_path: Optional[str] = None
     """Path to pretrained model weights."""
-    
+
     # Architecture parameters
     num_evoformer_blocks: int = 48
     """Number of Evoformer/Pairformer blocks."""
-    
+
     msa_channel: int = 256
     """MSA representation channel dimension."""
-    
+
     pair_channel: int = 128
     """Pair representation channel dimension."""
-    
+
     seq_channel: int = 384
     """Sequence representation channel dimension."""
-    
+
     num_heads: int = 8
     """Number of attention heads."""
-    
+
     # Diffusion parameters (for AF3/Boltz)
     num_diffusion_steps: int = 200
     """Number of diffusion steps for inference."""
-    
+
     sigma_data: float = 16.0
     """Data standard deviation for diffusion."""
-    
+
     # Device configuration
     device: str = "cuda"
     """Device to use (cuda, cpu, tpu)."""
-    
+
     precision: Literal["fp32", "fp16", "bf16"] = "bf16"
     """Training precision."""
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -96,60 +96,60 @@ class ModelConfig:
 @dataclass
 class TrainingConfig:
     """Configuration for training."""
-    
+
     # Optimization
     learning_rate: float = 1e-4
     """Base learning rate."""
-    
+
     weight_decay: float = 0.01
     """Weight decay for regularization."""
-    
+
     warmup_steps: int = 1000
     """Number of warmup steps for learning rate."""
-    
+
     max_steps: int = 100000
     """Maximum number of training steps."""
-    
+
     batch_size: int = 1
     """Batch size per device."""
-    
+
     gradient_accumulation_steps: int = 8
     """Number of gradient accumulation steps."""
-    
+
     max_grad_norm: float = 1.0
     """Maximum gradient norm for clipping."""
-    
+
     # Scheduler
     lr_scheduler: Literal["cosine", "linear", "constant", "warmup_cosine"] = "warmup_cosine"
     """Learning rate scheduler type."""
-    
+
     # Checkpointing
     save_steps: int = 1000
     """Save checkpoint every N steps."""
-    
+
     eval_steps: int = 500
     """Evaluate every N steps."""
-    
+
     save_total_limit: int = 5
     """Maximum number of checkpoints to keep."""
-    
+
     output_dir: str = "./finetuning_output"
     """Output directory for checkpoints and logs."""
-    
+
     # Logging
     logging_steps: int = 100
     """Log metrics every N steps."""
-    
+
     wandb_project: Optional[str] = None
     """Weights & Biases project name."""
-    
+
     # Distributed training
     distributed: bool = False
     """Whether to use distributed training."""
-    
+
     num_gpus: int = 1
     """Number of GPUs to use."""
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -175,59 +175,59 @@ class TrainingConfig:
 @dataclass
 class FineTuningConfig:
     """Main configuration for fine-tuning."""
-    
+
     # Core configuration
     model: ModelConfig = field(default_factory=ModelConfig)
     """Model configuration."""
-    
+
     training: TrainingConfig = field(default_factory=TrainingConfig)
     """Training configuration."""
-    
+
     # Fine-tuning strategy
     strategy: FineTuningStrategy = FineTuningStrategy.LORA
     """Fine-tuning strategy to use."""
-    
+
     task: TaskType = TaskType.BINDING_AFFINITY
     """Task to fine-tune for."""
-    
+
     # LoRA parameters
     lora_rank: int = 8
     """Rank for LoRA decomposition."""
-    
+
     lora_alpha: float = 16.0
     """Alpha scaling for LoRA."""
-    
+
     lora_dropout: float = 0.1
     """Dropout rate for LoRA layers."""
-    
+
     lora_target_modules: List[str] = field(default_factory=lambda: [
         "q_proj", "k_proj", "v_proj", "o_proj",
         "left_projection", "right_projection"
     ])
     """Modules to apply LoRA to."""
-    
+
     # Adapter parameters
     adapter_hidden_dim: int = 64
     """Hidden dimension for adapter modules."""
-    
+
     # Prompt tuning parameters
     num_prompt_tokens: int = 10
     """Number of learnable prompt tokens."""
-    
+
     # Frozen layers
     freeze_embeddings: bool = False
     """Whether to freeze embedding layers."""
-    
+
     freeze_evoformer_layers: Optional[int] = None
     """Number of Evoformer layers to freeze (from bottom)."""
-    
+
     # Data augmentation
     use_msa_augmentation: bool = True
     """Whether to use MSA augmentation."""
-    
+
     use_structure_augmentation: bool = True
     """Whether to use structure augmentation (rotation, translation)."""
-    
+
     # Loss weights
     loss_weights: Dict[str, float] = field(default_factory=lambda: {
         "fape": 1.0,
@@ -237,11 +237,11 @@ class FineTuningConfig:
         "property": 1.0,
     })
     """Weights for different loss components."""
-    
+
     # Seed
     seed: int = 42
     """Random seed for reproducibility."""
-    
+
     def __post_init__(self):
         """Validate configuration after initialization."""
         if isinstance(self.strategy, str):
@@ -252,7 +252,7 @@ class FineTuningConfig:
             self.model = ModelConfig(**self.model)
         if isinstance(self.training, dict):
             self.training = TrainingConfig(**self.training)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -273,12 +273,12 @@ class FineTuningConfig:
             "loss_weights": self.loss_weights,
             "seed": self.seed,
         }
-    
+
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "FineTuningConfig":
         """Create config from dictionary."""
         return cls(**config_dict)
-    
+
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "FineTuningConfig":
         """Load config from YAML file."""
@@ -286,7 +286,7 @@ class FineTuningConfig:
         with open(yaml_path, 'r') as f:
             config_dict = yaml.safe_load(f)
         return cls.from_dict(config_dict)
-    
+
     def save_yaml(self, yaml_path: str):
         """Save config to YAML file."""
         import yaml
