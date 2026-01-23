@@ -6,13 +6,13 @@ making it easy to create models, heads, and datasets for any task type.
 
 Usage:
     from finetuning.registry import TaskRegistry, create_finetuning_pipeline
-    
+
     # List all tasks
     TaskRegistry.list_all_tasks()
-    
+
     # Get task info
     info = TaskRegistry.get_task_info("binding_affinity")
-    
+
     # Create complete pipeline
     pipeline = create_finetuning_pipeline(
         task="binding_affinity",
@@ -133,7 +133,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=16,
         recommended_lr=1e-4,
     ),
-    
+
     # Protein Engineering
     "stability": TaskInfo(
         name="stability",
@@ -180,7 +180,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=8,
         recommended_lr=5e-5,
     ),
-    
+
     # Antibody Design
     "affinity_maturation": TaskInfo(
         name="affinity_maturation",
@@ -227,7 +227,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=16,
         recommended_lr=5e-5,
     ),
-    
+
     # Enzyme Engineering
     "enzyme_activity": TaskInfo(
         name="enzyme_activity",
@@ -274,7 +274,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=16,
         recommended_lr=5e-5,
     ),
-    
+
     # Protein-Protein Interactions
     "ppi_binding": TaskInfo(
         name="ppi_binding",
@@ -321,7 +321,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=16,
         recommended_lr=5e-5,
     ),
-    
+
     # Function Prediction
     "go_prediction": TaskInfo(
         name="go_prediction",
@@ -368,7 +368,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=4,
         recommended_lr=1e-4,
     ),
-    
+
     # Immunology
     "bcell_epitope": TaskInfo(
         name="bcell_epitope",
@@ -415,7 +415,7 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
         recommended_rank=16,
         recommended_lr=5e-5,
     ),
-    
+
     # Structure Quality
     "structure_quality": TaskInfo(
         name="structure_quality",
@@ -482,12 +482,12 @@ TASK_REGISTRY: Dict[str, TaskInfo] = {
 
 class TaskRegistry:
     """Central registry for all fine-tuning tasks."""
-    
+
     @staticmethod
     def list_all_tasks() -> List[str]:
         """List all registered task names."""
         return list(TASK_REGISTRY.keys())
-    
+
     @staticmethod
     def list_tasks_by_category(category: TaskCategory) -> List[str]:
         """List tasks in a specific category."""
@@ -495,7 +495,7 @@ class TaskRegistry:
             name for name, info in TASK_REGISTRY.items()
             if info.category == category
         ]
-    
+
     @staticmethod
     def get_task_info(task_name: str) -> TaskInfo:
         """Get complete information about a task."""
@@ -503,7 +503,7 @@ class TaskRegistry:
             available = ", ".join(TASK_REGISTRY.keys())
             raise ValueError(f"Unknown task: {task_name}. Available: {available}")
         return TASK_REGISTRY[task_name]
-    
+
     @staticmethod
     def get_recommended_config(task_name: str) -> dict:
         """Get recommended hyperparameters for a task."""
@@ -513,7 +513,7 @@ class TaskRegistry:
             "learning_rate": info.recommended_lr,
             "min_samples": info.min_samples,
         }
-    
+
     @staticmethod
     def search_tasks(query: str) -> List[str]:
         """Search tasks by keyword in name or description."""
@@ -523,7 +523,7 @@ class TaskRegistry:
             if query_lower in name.lower() or query_lower in info.description.lower():
                 matches.append(name)
         return matches
-    
+
     @staticmethod
     def get_tasks_for_output(output_type: str) -> List[str]:
         """Find tasks that predict a specific output type."""
@@ -535,14 +535,14 @@ class TaskRegistry:
                     matches.append(name)
                     break
         return matches
-    
+
     @staticmethod
     def print_task_summary():
         """Print a summary of all tasks by category."""
         print("=" * 70)
         print("AlphaFold Codec Fine-tuning Task Registry")
         print("=" * 70)
-        
+
         for category in TaskCategory:
             tasks = TaskRegistry.list_tasks_by_category(category)
             if tasks:
@@ -572,36 +572,36 @@ def create_finetuning_pipeline(
     **kwargs
 ) -> FineTuningPipeline:
     """Factory function to create a complete fine-tuning pipeline.
-    
+
     Args:
         task: Task name from registry
         base_model: Pre-trained model to fine-tune
         strategy: Fine-tuning strategy (lora, adapter, full)
         **kwargs: Additional configuration options
-        
+
     Returns:
         Configured FineTuningPipeline
     """
     # Get task info
     task_info = TaskRegistry.get_task_info(task)
-    
+
     # Get recommended config and merge with kwargs
     recommended = TaskRegistry.get_recommended_config(task)
     config_dict = {**recommended, **kwargs}
-    
+
     # Create task config
     if task in TASK_PRESETS:
         config = TASK_PRESETS[task]
     else:
         config = task_info.config_class(**config_dict)
-    
+
     # Create pipeline
     pipeline = FineTuningPipeline(
         task_name=task,
         task_info=task_info,
         config=config,
     )
-    
+
     # If base model provided, set up LoRA/adapter
     if base_model is not None:
         try:
@@ -616,7 +616,7 @@ def create_finetuning_pipeline(
                 pipeline.model = base_model
         except ImportError:
             pipeline.model = base_model
-    
+
     return pipeline
 
 
@@ -634,7 +634,7 @@ def list_tasks() -> List[str]:
 if __name__ == "__main__":
     # Demo
     TaskRegistry.print_task_summary()
-    
+
     print("\n\nExample: Getting task info")
     print("-" * 40)
     info = get_task("binding_affinity")

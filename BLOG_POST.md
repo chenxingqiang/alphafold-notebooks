@@ -4,7 +4,7 @@
 
 ---
 
-*How we built the most comprehensive educational resource for understanding protein structure prediction AI — with 85+ interactive notebooks and a complete fine-tuning framework for real-world applications.*
+*How we built the most comprehensive educational resource for understanding protein structure prediction AI — with 85+ interactive notebooks, 229 curated reference papers, and a complete fine-tuning framework for real-world applications.*
 
 ---
 
@@ -12,7 +12,7 @@ When DeepMind's AlphaFold solved the protein folding problem in 2020, it didn't 
 
 **Until now.**
 
-We've created **AlphaFold Codec** — an open-source repository that systematically deconstructs every algorithm from AlphaFold2, AlphaFold3, and the Boltz family. Not just explanations. Not just pseudocode. But **85+ executable Jupyter notebooks** with NumPy implementations you can run, modify, and learn from.
+We've created **AlphaFold Notebooks** — an open-source repository that systematically deconstructs every algorithm from AlphaFold2, AlphaFold3, and the Boltz family. Not just explanations. Not just pseudocode. But **85+ executable Jupyter notebooks** with NumPy implementations you can run, modify, and learn from — plus **229 curated reference papers** organized by model.
 
 ---
 
@@ -167,11 +167,15 @@ The `einsum` is doing the heavy lifting: for every pair (i,j), it looks at all t
 
 Plus:
 - Complete AF2 source code with annotations
-- 128+ reference paper summaries
-- Architecture diagrams
+- **229 curated reference papers** (organized by model):
+  - AlphaFold2: 83 papers (structural biology, deep learning, MSA)
+  - AlphaFold3: 50 papers (diffusion models, transformers, confidence)
+  - Boltz-1: 46 papers (open source, docking, PLMs)
+  - Boltz-2: 50 papers (binding affinity, FEP, virtual screening)
+- Architecture diagrams and visualizations
 - Application examples (peptide docking, MD integration)
-- **NEW: Complete fine-tuning framework with 50+ task types**
-- **NEW: Production-ready heads for drug discovery, antibody design, enzyme engineering, and more**
+- **Complete fine-tuning framework** with 50+ task types
+- **Production-ready heads** for drug discovery, antibody design, enzyme engineering, and more
 
 ---
 
@@ -369,14 +373,42 @@ class LoRALinearNumPy:
 ## Getting Started
 
 ```bash
-git clone https://github.com/chenxingqiang/ref-Alphafold-Code.git
-cd ref-Alphafold-Code
+git clone --recursive https://github.com/chenxingqiang/alphafold-notebooks.git
+cd alphafold-notebooks
 
 # Start with the AlphaFold2 index
-jupyter notebook AF2-NoteBooks/ALGORITHM_INDEX.md
+jupyter notebook alphafold2/notebooks/ALGORITHM_INDEX.md
 
 # Or jump straight to the iconic IPA
-jupyter notebook AF2-NoteBooks/algorithm-22-InvariantPointAttention.ipynb
+jupyter notebook alphafold2/notebooks/algorithm-22-InvariantPointAttention.ipynb
+
+# Browse reference papers
+cat alphafold2/AF2REFPAPERS.md   # 83 foundational papers
+cat alphafold3/AF3REFPAPERS.md   # 50 diffusion & transformer papers
+cat boltz/BOLTZREFPAPERS.md      # 46 open-source papers
+cat boltz2/BOLTZ2REFPAPERS.md    # 50 affinity prediction papers
+```
+
+### Repository Structure
+
+```
+alphafold-notebooks/
+├── alphafold2/              # AlphaFold2 (32 algorithms)
+│   ├── notebooks/           # Algorithm explanation notebooks
+│   ├── source/              # Source code reference
+│   ├── ref-src/             # External repos (submodules)
+│   └── AF2REFPAPERS.md      # 83 reference papers
+├── alphafold3/              # AlphaFold3 (23 algorithms)
+│   ├── notebooks/
+│   └── AF3REFPAPERS.md      # 50 reference papers
+├── boltz/                   # Boltz-1 (20 algorithms)
+│   ├── notebooks/
+│   └── BOLTZREFPAPERS.md    # 46 reference papers
+├── boltz2/                  # Boltz-2 (10 algorithms)
+│   ├── notebooks/
+│   └── BOLTZ2REFPAPERS.md   # 50 reference papers
+├── finetuning/              # Fine-tuning framework
+└── assets/images/           # Diagrams & visualizations
 ```
 
 ### Recommended Learning Path
@@ -386,7 +418,8 @@ jupyter notebook AF2-NoteBooks/algorithm-22-InvariantPointAttention.ipynb
 3. **Structure**: Algorithms 20-25 — from representations to 3D coordinates
 4. **Compare**: AF3 Algorithm 15-17 (Diffusion) — see the paradigm shift
 5. **Frontier**: Boltz-2 Algorithm 1-4 — binding affinity prediction
-6. **Apply**: Fine-tuning framework — adapt models for your research
+6. **Deep Dive**: Reference papers — understand the theoretical foundations
+7. **Apply**: Fine-tuning framework — adapt models for your research
 
 ---
 
@@ -472,6 +505,38 @@ print(f"Top epitope residues: {predictions['epitope_residues']}")
 
 ---
 
+## 📚 Curated Reference Papers: 229 Essential Readings
+
+Understanding these models means understanding the papers that built them. We've organized **229 reference papers** by model and topic:
+
+### AlphaFold2 References (83 papers)
+- Structural biology foundations (X-ray, cryo-EM, NMR)
+- Deep learning architectures (attention, ResNets, transformers)
+- MSA and coevolution methods
+- Protein representation learning
+
+### AlphaFold3 References (50 papers)
+- Diffusion probabilistic models
+- Transformer architectures for generative models
+- Small molecule and nucleic acid modeling
+- Geometric deep learning (SE(3) equivariance)
+
+### Boltz-1 References (46 papers)
+- Open-source structure prediction
+- Molecular docking methods
+- Protein language models
+- Production deployment considerations
+
+### Boltz-2 References (50 papers)
+- Binding affinity prediction
+- Free Energy Perturbation (FEP) methods
+- Virtual screening approaches
+- Drug discovery applications
+
+Each paper entry includes the full citation and relevance to the model architecture.
+
+---
+
 ## What's Next
 
 This is a living project. We're actively adding:
@@ -494,7 +559,7 @@ The repository is fully open source. We welcome:
 - **New algorithms**: Coverage of emerging methods
 - **Translations**: Making this accessible globally
 
-**Repository**: [github.com/chenxingqiang/ref-Alphafold-Code](https://github.com/chenxingqiang/ref-Alphafold-Code)
+**Repository**: [github.com/chenxingqiang/alphafold-notebooks](https://github.com/chenxingqiang/alphafold-notebooks)
 
 ---
 
@@ -515,7 +580,7 @@ Understanding *how* it works shouldn't be reserved for a select few.
 ---
 
 ### Tags
-`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery` `#FineTuning` `#LoRA` `#BindingAffinity` `#AntibodyDesign` `#EnzymeEngineering` `#ProteinEngineering` `#VaccineDesign` `#PPI`
+`#MachineLearning` `#DeepLearning` `#ComputationalBiology` `#AlphaFold` `#AlphaFold3` `#Boltz` `#ProteinFolding` `#OpenSource` `#AI` `#Bioinformatics` `#DrugDiscovery` `#FineTuning` `#LoRA` `#BindingAffinity` `#AntibodyDesign` `#EnzymeEngineering` `#ProteinEngineering` `#VaccineDesign` `#PPI` `#DiffusionModels` `#Transformers` `#StructuralBiology`
 
 ---
 

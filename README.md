@@ -15,27 +15,39 @@ This repository provides detailed Jupyter notebooks that explain the key algorit
 
 ```
 alphafold-notebooks/
-├── alphafold2/           # AlphaFold2 (32 algorithms)
-│   ├── notebooks/        # Algorithm explanation notebooks
-│   ├── source/           # Source code reference (local copy)
-│   ├── ref-src/          # External reference repositories (submodules)
-│   ├── references/       # Related papers
-│   ├── presentations/    # Slides and presentations
-│   └── applications/     # Application examples
+├── alphafold2/              # AlphaFold2 (32 algorithms)
+│   ├── notebooks/           # Algorithm explanation notebooks
+│   ├── source/              # Source code reference (local copy)
+│   ├── ref-src/             # External reference repositories (submodules)
+│   ├── references/          # Related papers info
+│   ├── presentations/       # Slides and presentations
+│   ├── applications/        # Application examples
+│   └── AF2REFPAPERS.md      # 83 reference papers
 │
-├── alphafold3/           # AlphaFold3 (23 algorithms)
+├── alphafold3/              # AlphaFold3 (23 algorithms)
 │   ├── notebooks/
-│   └── ref-src/          # External reference repositories (submodules)
+│   ├── ref-src/             # External reference repositories (submodules)
+│   └── AF3REFPAPERS.md      # 50 reference papers
 │
-├── boltz/                # Boltz-1 (20 algorithms)
+├── boltz/                   # Boltz-1 (20 algorithms)
 │   ├── notebooks/
-│   └── ref-src/          # External reference repositories (submodules)
+│   ├── ref-src/             # External reference repositories (submodules)
+│   └── BOLTZREFPAPERS.md    # 46 reference papers
 │
-├── boltz2/               # Boltz-2 (10 new algorithms)
-│   └── notebooks/
+├── boltz2/                  # Boltz-2 (10 new algorithms)
+│   ├── notebooks/
+│   └── BOLTZ2REFPAPERS.md   # 50 reference papers
+│
+├── finetuning/              # Fine-tuning framework
+│   ├── configs/             # Task configs (25+ types)
+│   ├── modules/             # LoRA, Adapter, Prompt Tuning
+│   ├── heads/               # 15+ specialized prediction heads
+│   ├── trainers/            # Training with DDP, AMP
+│   ├── data/                # 10+ dataset classes
+│   └── examples/            # Tutorial notebooks
 │
 └── assets/
-    └── images/           # Shared image resources
+    └── images/              # Shared image resources
 ```
 
 ## Model Comparison
@@ -90,17 +102,18 @@ git submodule update --init --recursive
 
 ## Quick Start
 
-Each model directory contains an `ALGORITHM_INDEX.md` that provides:
-- Complete algorithm listing with links
-- Category-based organization
-- Source code file references
-- Completion status
+Each model directory contains:
+- `ALGORITHM_INDEX.md` - Complete algorithm listing with notebooks and source references
+- `*REFPAPERS.md` - Comprehensive reference paper list
 
-Start here:
-- [AlphaFold2 Algorithm Index](alphafold2/notebooks/ALGORITHM_INDEX.md)
-- [AlphaFold3 Algorithm Index](alphafold3/notebooks/ALGORITHM_INDEX.md)
-- [Boltz-1 Algorithm Index](boltz/notebooks/ALGORITHM_INDEX.md)
-- [Boltz-2 Algorithm Index](boltz2/notebooks/ALGORITHM_INDEX.md)
+### Algorithm Notebooks
+
+| Model | Algorithms | Index |
+|-------|------------|-------|
+| **AlphaFold2** | 32 (Evoformer, IPA, FAPE...) | [Index](alphafold2/notebooks/ALGORITHM_INDEX.md) |
+| **AlphaFold3** | 23 (Diffusion, Pairformer...) | [Index](alphafold3/notebooks/ALGORITHM_INDEX.md) |
+| **Boltz-1** | 20 (AtomEncoder, Confidence...) | [Index](boltz/notebooks/ALGORITHM_INDEX.md) |
+| **Boltz-2** | 10 (Affinity, Contact Cond...) | [Index](boltz2/notebooks/ALGORITHM_INDEX.md) |
 
 ## Key Topics Covered
 
@@ -225,26 +238,27 @@ pipeline = create_finetuning_pipeline(
 )
 ```
 
-### Module Structure
-
-```
-finetuning/
-├── configs/           # Task configs (25+ types)
-├── modules/           # LoRA, Adapter, Prompt Tuning
-├── heads/             # 15+ specialized prediction heads
-├── trainers/          # Training with DDP, AMP
-├── data/              # 10+ dataset classes
-└── registry.py        # Task registry & factory
-```
-
 ---
 
 ## References
 
-- [AlphaFold2 Paper](https://www.nature.com/articles/s41586-021-03819-2)
-- [AlphaFold3 Paper](https://www.nature.com/articles/s41586-024-07487-w)
-- [Boltz-1 Paper](https://doi.org/10.1101/2024.11.19.624167)
-- [Boltz-2 Paper](https://doi.org/10.1101/2025.06.14.659707)
+### Core Papers
+
+| Model | Paper | DOI |
+|-------|-------|-----|
+| **AlphaFold2** | Highly accurate protein structure prediction with AlphaFold | [Nature 2021](https://www.nature.com/articles/s41586-021-03819-2) |
+| **AlphaFold3** | Accurate structure prediction of biomolecular interactions | [Nature 2024](https://www.nature.com/articles/s41586-024-07487-w) |
+| **Boltz-1** | Democratizing Biomolecular Interaction Modeling | [bioRxiv 2024](https://doi.org/10.1101/2024.11.19.624167) |
+| **Boltz-2** | Towards Accurate and Efficient Binding Affinity Prediction | [bioRxiv 2025](https://doi.org/10.1101/2025.06.14.659707) |
+
+### Full Reference Lists
+
+Each model has a comprehensive reference paper list covering foundational works, methods, and applications:
+
+- [AlphaFold2 References](alphafold2/AF2REFPAPERS.md) - 83 papers (structural biology, deep learning, MSA)
+- [AlphaFold3 References](alphafold3/AF3REFPAPERS.md) - 50 papers (diffusion models, transformers, confidence)
+- [Boltz-1 References](boltz/BOLTZREFPAPERS.md) - 46 papers (open source, docking, PLMs)
+- [Boltz-2 References](boltz2/BOLTZ2REFPAPERS.md) - 50 papers (binding affinity, FEP, virtual screening)
 
 ## License
 

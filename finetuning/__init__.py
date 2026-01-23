@@ -7,7 +7,7 @@ Fine-tuning Framework for Protein Structure Prediction Models
 
 This module provides comprehensive fine-tuning support for:
 - AlphaFold2 (JAX/Haiku)
-- AlphaFold3 (JAX/Haiku)  
+- AlphaFold3 (JAX/Haiku)
 - Boltz-1 (PyTorch)
 - Boltz-2 (PyTorch)
 
@@ -33,13 +33,13 @@ Supported Task Categories (50+ tasks):
 Quick Start:
 ------------
 >>> from finetuning import TaskRegistry, create_finetuning_pipeline
->>> 
+>>>
 >>> # List all available tasks
 >>> print(TaskRegistry.list_all_tasks())
->>> 
+>>>
 >>> # Get task info
 >>> info = TaskRegistry.get_task_info("binding_affinity")
->>> 
+>>>
 >>> # Create pipeline
 >>> pipeline = create_finetuning_pipeline(
 ...     task="binding_affinity",
@@ -51,7 +51,7 @@ Detailed Usage:
 ---------------
 >>> from finetuning import FineTuningConfig, LoRAModule, AffinityHead
 >>> from finetuning.trainers import Trainer
->>> 
+>>>
 >>> config = FineTuningConfig(
 ...     model_type="boltz2",
 ...     strategy="lora",
@@ -65,8 +65,8 @@ Detailed Usage:
 from .configs import FineTuningConfig, ModelConfig, TrainingConfig
 from .modules import LoRAModule, AdapterModule, PromptTuning
 from .heads import (
-    AffinityHead, 
-    PropertyHead, 
+    AffinityHead,
+    PropertyHead,
     ContactHead,
     AntibodyAffinityHead,
     DevelopabilityHead,
@@ -99,7 +99,7 @@ __version__ = "0.2.0"
 __all__ = [
     # Configs
     "FineTuningConfig",
-    "ModelConfig", 
+    "ModelConfig",
     "TrainingConfig",
     # Modules
     "LoRAModule",
