@@ -1,42 +1,42 @@
-[submodule "AF3-Ref-src/alphafold3-official"]
-	path = AF3-Ref-src/alphafold3-official
-	url = https://github.com/google-deepmind/alphafold3.git
-[submodule "AF3-Ref-src/alphafold3-pytorch"]
-	path = AF3-Ref-src/alphafold3-pytorch
-	url = https://github.com/lucidrains/alphafold3-pytorch.git
-[submodule "AF3-Ref-src/alphafold3-walkthrough"]
-	path = AF3-Ref-src/alphafold3-walkthrough
-	url = https://github.com/shenyichong/alphafold3-architecture-walkthrough.git
-[submodule "Boltz-Ref-src/boltz-official"]
-	path = Boltz-Ref-src/boltz-official
-	url = https://github.com/jwohlwend/boltz.git
-[submodule "Boltz-Ref-src/boltzina"]
-	path = Boltz-Ref-src/boltzina
-	url = https://github.com/ohuelab/boltzina.git
-[submodule "AF2-Ref-src/alphafold-official"]
-	path = AF2-Ref-src/alphafold-official
+[submodule "alphafold2/ref-src/alphafold-official"]
+	path = alphafold2/ref-src/alphafold-official
 	url = https://github.com/deepmind/alphafold.git
-[submodule "AF2-Ref-src/openfold"]
-	path = AF2-Ref-src/openfold
+[submodule "alphafold2/ref-src/openfold"]
+	path = alphafold2/ref-src/openfold
 	url = https://github.com/aqlaboratory/openfold.git
-[submodule "AF2-Ref-src/colabfold"]
-	path = AF2-Ref-src/colabfold
+[submodule "alphafold2/ref-src/colabfold"]
+	path = alphafold2/ref-src/colabfold
 	url = https://github.com/sokrypton/ColabFold.git
-[submodule "AF2-Ref-src/mmseqs2"]
-	path = AF2-Ref-src/mmseqs2
+[submodule "alphafold2/ref-src/mmseqs2"]
+	path = alphafold2/ref-src/mmseqs2
 	url = https://github.com/soedinglab/MMseqs2.git
-[submodule "AF2-Ref-src/hh-suite"]
-	path = AF2-Ref-src/hh-suite
+[submodule "alphafold2/ref-src/hh-suite"]
+	path = alphafold2/ref-src/hh-suite
 	url = https://github.com/soedinglab/hh-suite.git
-[submodule "AF2-Ref-src/trRosetta2"]
-	path = AF2-Ref-src/trRosetta2
+[submodule "alphafold2/ref-src/trRosetta2"]
+	path = alphafold2/ref-src/trRosetta2
 	url = https://github.com/RosettaCommons/trRosetta2.git
-[submodule "AF2-Ref-src/esm"]
-	path = AF2-Ref-src/esm
+[submodule "alphafold2/ref-src/esm"]
+	path = alphafold2/ref-src/esm
 	url = https://github.com/facebookresearch/esm.git
-[submodule "AF2-Ref-src/unirep"]
-	path = AF2-Ref-src/unirep
+[submodule "alphafold2/ref-src/unirep"]
+	path = alphafold2/ref-src/unirep
 	url = https://github.com/churchlab/UniRep.git
-[submodule "AF2-Ref-src/seqvec"]
-	path = AF2-Ref-src/seqvec
+[submodule "alphafold2/ref-src/seqvec"]
+	path = alphafold2/ref-src/seqvec
 	url = https://github.com/rostlab/SeqVec.git
+[submodule "alphafold3/ref-src/alphafold3-official"]
+	path = alphafold3/ref-src/alphafold3-official
+	url = https://github.com/google-deepmind/alphafold3.git
+[submodule "alphafold3/ref-src/alphafold3-pytorch"]
+	path = alphafold3/ref-src/alphafold3-pytorch
+	url = https://github.com/lucidrains/alphafold3-pytorch.git
+[submodule "alphafold3/ref-src/alphafold3-walkthrough"]
+	path = alphafold3/ref-src/alphafold3-walkthrough
+	url = https://github.com/shenyichong/alphafold3-architecture-walkthrough.git
+[submodule "boltz/ref-src/boltz-official"]
+	path = boltz/ref-src/boltz-official
+	url = https://github.com/jwohlwend/boltz.git
+[submodule "boltz/ref-src/boltzina"]
+	path = boltz/ref-src/boltzina
+	url = https://github.com/ohuelab/boltzina.git

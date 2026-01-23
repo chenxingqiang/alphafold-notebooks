@@ -1,1 +1,0 @@
-![figure](../imgs/algorithms/renameSymmetricGroundTruthAtoms.png)
