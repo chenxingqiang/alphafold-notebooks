@@ -1,1 +1,0 @@
-![figure](../imgs/algorithms/TemplatePointwiseAttention.png)
