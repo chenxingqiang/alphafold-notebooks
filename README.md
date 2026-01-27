@@ -1,138 +1,179 @@
-# Protein Structure Prediction Algorithm Notebooks
 
-A comprehensive educational resource for understanding the core algorithms of modern protein structure prediction models, including **AlphaFold2**, **AlphaFold3**, **Boltz-1**, and **Boltz-2**.
+![logo](imgs/logo2.png)
+# A reference of 'AlphaFold2 Codec' include everything of AlphaFold2.
 
-## Overview
+![proteins](imgs/proteins.jpeg)
 
-This repository provides detailed Jupyter notebooks that explain the key algorithms from each model's architecture, with:
+------------------------------------------------------------------------------------------
 
-- **Pseudocode explanations** from original papers
-- **NumPy implementations** for educational purposes
-- **Source code references** to official implementations
-- **Test examples** to verify understanding
 
-## Repository Structure
+# Learning Source Availability
+## Papers
+- [Jumper, J., Evans, R., Pritzel, A. et al. Highly accurate protein structure prediction with AlphaFold. Nature (2021). https://doi.org/10.1038/s41586-021-03819-2](https://www.nature.com/articles/s41586-021-03819-2)
+  
+## PPT 
+- My Public talk on Alphafold2 Paper Reading By Xingqiang,Chen [.Key](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2-PPT/2021-07-30-AlphaFold2-paper-sharing-chen-xingqiang.key)/[.pptx](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2-PPT/2021-07-30-AlphaFold2-paper-sharing-chen-xingqiang.pptx)
+in AF2-PPT file.
+- Sergey Ovchinnikov talk on AF2 
+[slides](https://docs.google.com/presentation/d/1mnffk23ev2QMDzGZ5w1skXEadTe54l8-Uei6ACce8eI/edit#slide=id.p) /[.pptx](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2-PPT/ColabFold.pptx) in AF2-PPT file.
 
-```
-alphafold-notebooks/
-├── alphafold2/              # AlphaFold2 (32 algorithms)
-│   ├── notebooks/           # Algorithm explanation notebooks
-│   ├── source/              # Source code reference (local copy)
-│   ├── ref-src/             # External reference repositories (submodules)
-│   ├── references/          # Related papers info
-│   ├── presentations/       # Slides and presentations
-│   ├── applications/        # Application examples
-│   └── AF2REFPAPERS.md      # 83 reference papers
-│
-├── alphafold3/              # AlphaFold3 (23 algorithms)
-│   ├── notebooks/
-│   ├── ref-src/             # External reference repositories (submodules)
-│   └── AF3REFPAPERS.md      # 50 reference papers
-│
-├── boltz/                   # Boltz-1 (20 algorithms)
-│   ├── notebooks/
-│   ├── ref-src/             # External reference repositories (submodules)
-│   └── BOLTZREFPAPERS.md    # 46 reference papers
-│
-├── boltz2/                  # Boltz-2 (10 new algorithms)
-│   ├── notebooks/
-│   └── BOLTZ2REFPAPERS.md   # 50 reference papers
-│
-├── finetuning/              # Fine-tuning framework
-│   ├── configs/             # Task configs (25+ types)
-│   ├── modules/             # LoRA, Adapter, Prompt Tuning
-│   ├── heads/               # 15+ specialized prediction heads
-│   ├── trainers/            # Training with DDP, AMP
-│   ├── data/                # 10+ dataset classes
-│   └── examples/            # Tutorial notebooks
-│
-└── assets/
-    └── images/              # Shared image resources
-```
+## Learning by Code  
 
-## Model Comparison
+### 📓 AlphaFold2 Algorithm Notebooks (32 Complete!)
 
-| Model | Key Architecture | Algorithms Covered |
-|-------|-----------------|-------------------|
-| **AlphaFold2** | Evoformer + IPA Structure Module | 32 |
-| **AlphaFold3** | MSA Module + Pairformer + Diffusion | 23 |
-| **Boltz-1** | Pairformer + Diffusion (open source) | 20 |
-| **Boltz-2** | + Affinity Prediction (binding affinity) | 10 (new) |
+We provide **32 Jupyter Notebooks** covering every algorithm from the AlphaFold2 supplementary materials. Each notebook includes:
+- Algorithm pseudocode/image reference
+- Source code location mapping
+- NumPy implementation
+- Executable test cases with verification
 
-## Reference Source Code (Git Submodules)
+👉 **[Full Algorithm Index](AF2-NoteBooks/ALGORITHM_INDEX.md)**
 
-### AlphaFold2 References
+#### Quick Links by Category
 
-| Repository | Description | URL |
-|------------|-------------|-----|
-| **alphafold-official** | DeepMind's official AlphaFold2 | [deepmind/alphafold](https://github.com/deepmind/alphafold) |
-| **openfold** | Trainable PyTorch reproduction | [aqlaboratory/openfold](https://github.com/aqlaboratory/openfold) |
-| **colabfold** | Fast AlphaFold on Google Colab | [sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) |
-| **mmseqs2** | Fast sequence search tool | [soedinglab/MMseqs2](https://github.com/soedinglab/MMseqs2) |
-| **hh-suite** | HMM-based sequence search | [soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) |
-| **trRosetta2** | Alternative structure prediction | [RosettaCommons/trRosetta2](https://github.com/RosettaCommons/trRosetta2) |
-| **esm** | Meta's protein language models | [facebookresearch/esm](https://github.com/facebookresearch/esm) |
-| **unirep** | UniRep protein representation | [churchlab/UniRep](https://github.com/churchlab/UniRep) |
-| **seqvec** | ELMo for proteins | [rostlab/SeqVec](https://github.com/rostlab/SeqVec) |
+| Category | Algorithms | Notebooks |
+|----------|------------|-----------|
+| **Data Preprocessing** | MSA Block Deletion | [Algorithm 1](AF2-NoteBooks/algorithm-1-MSABlockDeletion.ipynb) |
+| **Embedding** | Input Embedder, relpos, one_hot | [Alg 3](AF2-NoteBooks/algorithm-3-InputEmbedder.ipynb), [Alg 4](AF2-NoteBooks/algorithm-4-relpos.ipynb), [Alg 5](AF2-NoteBooks/algorithm-5-one_hot.ipynb) |
+| **Evoformer** | Stack, MSA Attention, Triangle Ops | [Alg 6-15](AF2-NoteBooks/) |
+| **Templates** | Pair Stack, Pointwise Attention | [Alg 16](AF2-NoteBooks/algorithm-16-TemplatePairStack.ipynb), [Alg 17](AF2-NoteBooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
+| **Extra MSA** | Stack, Global Attention | [Alg 18](AF2-NoteBooks/algorithm-18-ExtraMsaStack.ipynb), [Alg 19](AF2-NoteBooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
+| **Structure Module** | IPA, Backbone, Atom Coords | [Alg 20-25](AF2-NoteBooks/) |
+| **Losses** | FAPE, Torsion, pLDDT | [Alg 26-29](AF2-NoteBooks/) |
+| **Recycling** | Inference, Training, Embedder | [Alg 30](AF2-NoteBooks/algorithm-30-RecyclingInference.ipynb), [Alg 31](AF2-NoteBooks/algorithm-31-RecyclingTraining.ipynb), [Alg 32](AF2-NoteBooks/algorithm-32-RecyclingEmbedder.ipynb) |
+| **Main Pipeline** | Full Inference | [Algorithm 2](AF2-NoteBooks/algorithm-2-Inference.ipynb) |
 
-### AlphaFold3 References
+<details>
+<summary><b>📋 Complete Algorithm List (Click to Expand)</b></summary>
 
-| Repository | Description | URL |
-|------------|-------------|-----|
-| **alphafold3-official** | DeepMind's official AlphaFold3 | [google-deepmind/alphafold3](https://github.com/google-deepmind/alphafold3) |
-| **alphafold3-pytorch** | PyTorch reproduction by lucidrains | [lucidrains/alphafold3-pytorch](https://github.com/lucidrains/alphafold3-pytorch) |
-| **alphafold3-walkthrough** | Architecture walkthrough | [shenyichong/alphafold3-architecture-walkthrough](https://github.com/shenyichong/alphafold3-architecture-walkthrough) |
+| # | Algorithm | Notebook Link |
+|---|-----------|---------------|
+| 1 | MSA Block Deletion | [algorithm-1-MSABlockDeletion.ipynb](AF2-NoteBooks/algorithm-1-MSABlockDeletion.ipynb) |
+| 2 | Inference | [algorithm-2-Inference.ipynb](AF2-NoteBooks/algorithm-2-Inference.ipynb) |
+| 3 | Input Embedder | [algorithm-3-InputEmbedder.ipynb](AF2-NoteBooks/algorithm-3-InputEmbedder.ipynb) |
+| 4 | relpos | [algorithm-4-relpos.ipynb](AF2-NoteBooks/algorithm-4-relpos.ipynb) |
+| 5 | one_hot | [algorithm-5-one_hot.ipynb](AF2-NoteBooks/algorithm-5-one_hot.ipynb) |
+| 6 | Evoformer Stack | [algorithm-6-EvoformerStack.ipynb](AF2-NoteBooks/algorithm-6-EvoformerStack.ipynb) |
+| 7 | MSA Row Attention with Pair Bias | [algorithm-7-MSARowAttentionWithPairBias.ipynb](AF2-NoteBooks/algorithm-7-MSARowAttentionWithPairBias.ipynb) |
+| 8 | MSA Column Attention | [algorithm-8-MSAColumnAttention.ipynb](AF2-NoteBooks/algorithm-8-MSAColumnAttention.ipynb) |
+| 9 | MSA Transition | [algorithm-9-MSATransition.ipynb](AF2-NoteBooks/algorithm-9-MSATransition.ipynb) |
+| 10 | Outer Product Mean | [algorithm-10-OuterProductMean.ipynb](AF2-NoteBooks/algorithm-10-OuterProductMean.ipynb) |
+| 11 | Triangle Multiplication (Outgoing) | [algorithm-11-TriangleMultiplicationOutgoing.ipynb](AF2-NoteBooks/algorithm-11-TriangleMultiplicationOutgoing.ipynb) |
+| 12 | Triangle Multiplication (Incoming) | [algorithm-12-TriangleMultiplicationIncoming.ipynb](AF2-NoteBooks/algorithm-12-TriangleMultiplicationIncoming.ipynb) |
+| 13 | Triangle Attention (Starting Node) | [algorithm-13-TriangleAttentionStartingNode.ipynb](AF2-NoteBooks/algorithm-13-TriangleAttentionStartingNode.ipynb) |
+| 14 | Triangle Attention (Ending Node) | [algorithm-14-TriangleAttentionEndingNode.ipynb](AF2-NoteBooks/algorithm-14-TriangleAttentionEndingNode.ipynb) |
+| 15 | Pair Transition | [algorithm-15-PairTransition.ipynb](AF2-NoteBooks/algorithm-15-PairTransition.ipynb) |
+| 16 | Template Pair Stack | [algorithm-16-TemplatePairStack.ipynb](AF2-NoteBooks/algorithm-16-TemplatePairStack.ipynb) |
+| 17 | Template Pointwise Attention | [algorithm-17-TemplatePointwiseAttention.ipynb](AF2-NoteBooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
+| 18 | Extra MSA Stack | [algorithm-18-ExtraMsaStack.ipynb](AF2-NoteBooks/algorithm-18-ExtraMsaStack.ipynb) |
+| 19 | MSA Column Global Attention | [algorithm-19-MSAColumnGlobalAttention.ipynb](AF2-NoteBooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
+| 20 | Structure Module | [algorithm-20-StructureModule.ipynb](AF2-NoteBooks/algorithm-20-StructureModule.ipynb) |
+| 21 | Rigid from 3 Points | [algorithm-21-rigidFrom3Points.ipynb](AF2-NoteBooks/algorithm-21-rigidFrom3Points.ipynb) |
+| 22 | Invariant Point Attention | [algorithm-22-InvariantPointAttention.ipynb](AF2-NoteBooks/algorithm-22-InvariantPointAttention.ipynb) |
+| 23 | Backbone Update | [algorithm-23-BackboneUpdate.ipynb](AF2-NoteBooks/algorithm-23-BackboneUpdate.ipynb) |
+| 24 | Compute All Atom Coordinates | [algorithm-24-computeAllAtomCoordinates.ipynb](AF2-NoteBooks/algorithm-24-computeAllAtomCoordinates.ipynb) |
+| 25 | makeRotX | [algorithm-25-makeRotX.ipynb](AF2-NoteBooks/algorithm-25-makeRotX.ipynb) |
+| 26 | Rename Symmetric Ground Truth Atoms | [algorithm-26-renameSymmetricGroundTruthAtoms.ipynb](AF2-NoteBooks/algorithm-26-renameSymmetricGroundTruthAtoms.ipynb) |
+| 27 | Torsion Angle Loss | [algorithm-27-torsionAngleLoss.ipynb](AF2-NoteBooks/algorithm-27-torsionAngleLoss.ipynb) |
+| 28 | Compute FAPE | [algorithm-28-computeFAPE.ipynb](AF2-NoteBooks/algorithm-28-computeFAPE.ipynb) |
+| 29 | Predict Per-Residue LDDT | [algorithm-29-predictPerResidueLDDT.ipynb](AF2-NoteBooks/algorithm-29-predictPerResidueLDDT.ipynb) |
+| 30 | Recycling (Inference) | [algorithm-30-RecyclingInference.ipynb](AF2-NoteBooks/algorithm-30-RecyclingInference.ipynb) |
+| 31 | Recycling (Training) | [algorithm-31-RecyclingTraining.ipynb](AF2-NoteBooks/algorithm-31-RecyclingTraining.ipynb) |
+| 32 | Recycling Embedder | [algorithm-32-RecyclingEmbedder.ipynb](AF2-NoteBooks/algorithm-32-RecyclingEmbedder.ipynb) |
 
-### Boltz References
+</details>
 
-| Repository | Description | URL |
-|------------|-------------|-----|
-| **boltz-official** | Official Boltz-1 & Boltz-2 | [jwohlwend/boltz](https://github.com/jwohlwend/boltz) |
-| **boltzina** | Boltz for virtual screening | [ohuelab/boltzina](https://github.com/ohuelab/boltzina) |
+### 📓 AlphaFold3 Algorithm Notebooks (NEW!)
 
-### Clone with Submodules
+We now include **AlphaFold3** algorithm notebooks! AF3 introduces significant architectural changes including diffusion-based structure prediction.
+
+👉 **[AlphaFold3 Algorithm Index](AF3-NoteBooks/ALGORITHM_INDEX.md)**
+
+#### Key AF3 Components
+
+| Category | Key Algorithms | Notebooks |
+|----------|---------------|-----------|
+| **Input** | MSA Features, Templates, Atom Features | [Alg 1-4](AF3-NoteBooks/) |
+| **MSA Module** | Outer Product, MSA Attention | [Alg 5-7](AF3-NoteBooks/) |
+| **Pairformer** | Triangle Ops, Single Attention | [Alg 8-14](AF3-NoteBooks/algorithm-08-PairformerStack.ipynb) |
+| **Diffusion** | Diffusion Module, AdaLN, Transformer | [Alg 15](AF3-NoteBooks/algorithm-15-DiffusionModule.ipynb), [Alg 16](AF3-NoteBooks/algorithm-16-AdaptiveLayerNorm.ipynb) |
+| **Confidence** | Distogram, Confidence, LDDT | [Alg 20-23](AF3-NoteBooks/) |
+
+#### AF3 Source Code Submodules
 
 ```bash
-# Clone with all submodules
-git clone --recursive https://github.com/your-repo/alphafold-notebooks.git
+# Official AlphaFold3
+AF3-Ref-src/alphafold3-official/
 
-# Or initialize submodules after clone
-git submodule update --init --recursive
+# PyTorch Implementation (lucidrains)
+AF3-Ref-src/alphafold3-pytorch/
+
+# Architecture Walkthrough
+AF3-Ref-src/alphafold3-walkthrough/
 ```
 
-## Quick Start
+### 📓 Boltz Algorithm Notebooks (NEW!)
 
-Each model directory contains:
-- `ALGORITHM_INDEX.md` - Complete algorithm listing with notebooks and source references
-- `*REFPAPERS.md` - Comprehensive reference paper list
+We now include **Boltz** algorithm notebooks! Boltz is a family of models for biomolecular interaction prediction:
+- **Boltz-1**: First fully open source model to approach AlphaFold3 accuracy
+- **Boltz-2**: Adds binding affinity prediction, approaching FEP accuracy 1000x faster
 
-### Algorithm Notebooks
+👉 **[Boltz Algorithm Index](Boltz-NoteBooks/ALGORITHM_INDEX.md)**
 
-| Model | Algorithms | Index |
-|-------|------------|-------|
-| **AlphaFold2** | 32 (Evoformer, IPA, FAPE...) | [Index](alphafold2/notebooks/ALGORITHM_INDEX.md) |
-| **AlphaFold3** | 23 (Diffusion, Pairformer...) | [Index](alphafold3/notebooks/ALGORITHM_INDEX.md) |
-| **Boltz-1** | 20 (AtomEncoder, Confidence...) | [Index](boltz/notebooks/ALGORITHM_INDEX.md) |
-| **Boltz-2** | 10 (Affinity, Contact Cond...) | [Index](boltz2/notebooks/ALGORITHM_INDEX.md) |
+#### Key Boltz Components
 
-## Key Topics Covered
+| Category | Key Algorithms | Notebooks |
+|----------|---------------|-----------|
+| **Input Processing** | Input Embedder, Atom Encoder, RelPos | [Alg 1-3](Boltz-NoteBooks/) |
+| **MSA Module** | MSA Module, Outer Product, Pair Averaging | [Alg 4-6](Boltz-NoteBooks/) |
+| **Pairformer** | Pairformer, Triangle Ops, Attention | [Alg 7-11](Boltz-NoteBooks/) |
+| **Diffusion** | Diffusion Module, Transformer, Fourier | [Alg 12-15](Boltz-NoteBooks/) |
+| **Confidence & Affinity** | Confidence, Distogram, Affinity (Boltz-2) | [Alg 16-18](Boltz-NoteBooks/) |
+| **Loss Functions** | Diffusion Loss, Confidence Loss | [Alg 19-20](Boltz-NoteBooks/) |
 
-### Representation Learning
-- MSA Processing (Row/Column Attention)
-- Outer Product Mean
-- Triangle Multiplication & Attention
-- Pairformer Stack
+#### Boltz Source Code Submodule
 
-### Structure Prediction
-- Invariant Point Attention (IPA) - AlphaFold2
-- Diffusion Transformer - AlphaFold3/Boltz
-- Atom Cross Attention
+```bash
+# Official Boltz Repository
+Boltz-Ref-src/boltz-official/
+```
 
-### Confidence & Loss
-- pLDDT, pAE, pTM metrics
-- FAPE Loss
-- Diffusion Loss
-- Binding Affinity (Boltz-2)
+**Papers:**
+- [Boltz-1: bioRxiv 2024.11.19.624167](https://doi.org/10.1101/2024.11.19.624167)
+- [Boltz-2: bioRxiv 2025.06.14.659707](https://doi.org/10.1101/2025.06.14.659707)
+
+### 📓 Boltz-2 Specific Notebooks (NEW!)
+
+Boltz-2 introduces **binding affinity prediction** - the first DL model approaching FEP accuracy while being 1000x faster.
+
+👉 **[Boltz-2 Algorithm Index](Boltz2-NoteBooks/ALGORITHM_INDEX.md)**
+
+#### Boltz-2 New Features
+
+| Category | Key Algorithms | Notebooks |
+|----------|---------------|-----------|
+| **Affinity Prediction** | Affinity Module, Gaussian Smearing | [Alg 1-2](Boltz2-NoteBooks/) |
+| **Contact Guidance** | Contact Conditioning | [Alg 3](Boltz2-NoteBooks/algorithm-03-ContactConditioning.ipynb) |
+| **Enhanced v2 Modules** | Input v2, Template v2, Diffusion v2 | [Alg 5-7](Boltz2-NoteBooks/) |
+| **Improved Confidence** | Confidence v2, B-Factor | [Alg 8, 10](Boltz2-NoteBooks/) |
+
+#### Boltz-2 Submodules
+
+```bash
+# Official Repository (contains both Boltz-1 and Boltz-2)
+Boltz-Ref-src/boltz-official/
+
+# Boltzina - Virtual Screening with Boltz-2
+Boltz-Ref-src/boltzina/
+```
+
+### Practice on Modeling Test of AF2
+- https://github.com/sokrypton/ColabFold.git
+
+### MD+Alphafold2
+- https://github.com/pablo-arantes/Making-it-rain
+
+---
 
 ## 🔧 Fine-tuning Framework (NEW!)
 
@@ -149,7 +190,18 @@ We provide a comprehensive **fine-tuning framework** for adapting protein struct
 | Boltz-1 | PyTorch | ✅ Full, LoRA, Adapter |
 | Boltz-2 | PyTorch | ✅ Full, LoRA, Adapter |
 
+### Fine-tuning Strategies
+
+| Strategy | Trainable Params | Use Case |
+|----------|-----------------|----------|
+| **LoRA** | ~0.1% | Small datasets, efficient fine-tuning |
+| **Adapter** | ~1% | Modular, multiple tasks |
+| **Head-only** | ~5% | New prediction tasks |
+| **Full** | 100% | Large datasets, maximum performance |
+
 ### Supported Tasks (50+ Task Types)
+
+We support comprehensive task coverage inspired by production platforms like ProteinBase.com:
 
 <details>
 <summary><b>💊 Drug Discovery</b></summary>
@@ -207,13 +259,35 @@ We provide a comprehensive **fine-tuning framework** for adapting protein struct
 </details>
 
 <details>
-<summary><b>🧬 Function & Immunology</b></summary>
+<summary><b>🧬 Function Prediction</b></summary>
 
 | Task | Outputs | Applications |
 |------|---------|--------------|
 | GO Terms | MF, BP, CC | Annotation |
+| EC Numbers | Enzyme classification | Function discovery |
+| Localization | Subcellular compartment | Systems biology |
+
+</details>
+
+<details>
+<summary><b>🛡️ Immunology</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
 | B-cell Epitopes | Epitope probability | Vaccine design |
 | T-cell Epitopes | MHC binding | Immunotherapy |
+| Immunogenicity | ADA risk | Drug safety |
+
+</details>
+
+<details>
+<summary><b>📊 Structure Quality</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Confidence | pLDDT, pAE, pTM | Model validation |
+| Disorder | IDR prediction | Structure analysis |
+| Contacts | Distance maps | Validation |
 
 </details>
 
@@ -222,44 +296,189 @@ We provide a comprehensive **fine-tuning framework** for adapting protein struct
 ```python
 from finetuning import TaskRegistry, create_finetuning_pipeline
 from finetuning.modules import LoRAModule
+from finetuning.heads import AffinityHead
 
-# List all 50+ tasks
-print(TaskRegistry.list_all_tasks())
+# Option 1: Use Task Registry (Recommended)
+# List all available tasks
+print(TaskRegistry.list_all_tasks())  # 50+ tasks
 
-# Get task recommendations
+# Get task info and recommendations
 info = TaskRegistry.get_task_info("binding_affinity")
 print(f"Recommended LoRA rank: {info.recommended_rank}")
 
-# Create pipeline
+# Create pipeline automatically
 pipeline = create_finetuning_pipeline(
     task="binding_affinity",
     base_model=model,
     strategy="lora",
 )
+
+# Option 2: Manual Setup
+from finetuning import FineTuningConfig, Trainer
+
+# 1. Load pretrained model
+model = load_pretrained_boltz2()
+
+# 2. Apply LoRA (only ~0.1% parameters trainable)
+lora_model = LoRAModule(model, rank=8, alpha=16.0)
+
+# 3. Add task-specific head
+affinity_head = AffinityHead(AffinityHeadConfig())
+
+# 4. Train
+config = FineTuningConfig(
+    strategy="lora",
+    task="binding_affinity",
+    lora_rank=8,
+)
+trainer = Trainer(lora_model, config, train_loader, val_loader)
+trainer.train()
+
+# 5. Save lightweight LoRA weights
+lora_model.save_lora_weights("./lora_weights.pt")
+```
+
+### Module Overview
+
+```
+finetuning/
+├── configs/           # Configuration classes
+│   ├── base_config.py      # FineTuningConfig, ModelConfig, TrainingConfig
+│   ├── lora_config.py      # LoRA-specific configuration
+│   └── task_config.py      # 25+ task configurations (ProteinBase-style)
+├── modules/           # Fine-tuning modules
+│   ├── lora.py             # LoRA implementation (PyTorch & JAX)
+│   ├── adapter.py          # Adapter modules
+│   └── prompt_tuning.py    # Prompt tuning
+├── heads/             # Task-specific prediction heads (15+ specialized heads)
+│   ├── affinity_head.py    # Binding affinity (Boltz-2 style)
+│   ├── property_head.py    # Protein property prediction
+│   ├── contact_head.py     # Contact prediction
+│   ├── antibody_head.py    # Affinity maturation, humanization, developability
+│   ├── ppi_head.py         # PPI binding, interface, hot spots
+│   ├── enzyme_head.py      # Activity, specificity, evolution
+│   ├── function_head.py    # GO terms, EC numbers, localization
+│   └── epitope_head.py     # B-cell, T-cell epitopes, immunogenicity
+├── trainers/          # Training utilities
+│   ├── trainer.py          # Main trainer class
+│   ├── distributed_trainer.py  # Multi-GPU training
+│   └── callbacks.py        # Training callbacks (EarlyStopping, Wandb, etc.)
+├── data/              # Data utilities
+│   ├── datasets.py         # 10+ dataset classes for all task types
+│   └── transforms.py       # Data augmentation (rotation, MSA dropout)
+├── examples/          # Tutorial notebooks
+│   └── finetuning_tutorial.ipynb  # Complete walkthrough
+├── registry.py        # Task registry and factory pattern
+└── utils/             # Utility functions
+    ├── checkpoint.py       # Model checkpointing
+    └── metrics.py          # Evaluation metrics (lDDT, TM-score, AUROC, etc.)
 ```
 
 ---
+## Blogs 
+- [DeepMind: AlphaFold-Using-AI-for-scientific-discovery](https://deepmind.com/blog/article/AlphaFold-Using-AI-for-scientific-discovery)
+- [DeepMind: alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology](https://deepmind.com/blog/article/alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology)
+- [DeepMind: putting-the-power-of-alphafold-into-the-worlds-hands](https://deepmind.com/blog/article/putting-the-power-of-alphafold-into-the-worlds-hands)
+# References 
+## reference papers
+- [Reference papers list](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2REFPAPERS.md) here and you can download them by [Baidu Cloud Driver Link](https://pan.baidu.com/s/131uRwemUTwGvY-6kqxCYDA) with the code 9w2p.
+- Reference Papers' Source Codes are managed via git submodules in `AF2-Ref-src/`
 
-## References
+### 📦 AlphaFold2 Reference Source Code (Submodules)
 
-### Core Papers
+```bash
+# Official AlphaFold (DeepMind)
+AF2-Ref-src/alphafold-official/
 
-| Model | Paper | DOI |
-|-------|-------|-----|
-| **AlphaFold2** | Highly accurate protein structure prediction with AlphaFold | [Nature 2021](https://www.nature.com/articles/s41586-021-03819-2) |
-| **AlphaFold3** | Accurate structure prediction of biomolecular interactions | [Nature 2024](https://www.nature.com/articles/s41586-024-07487-w) |
-| **Boltz-1** | Democratizing Biomolecular Interaction Modeling | [bioRxiv 2024](https://doi.org/10.1101/2024.11.19.624167) |
-| **Boltz-2** | Towards Accurate and Efficient Binding Affinity Prediction | [bioRxiv 2025](https://doi.org/10.1101/2025.06.14.659707) |
+# OpenFold (PyTorch implementation)
+AF2-Ref-src/openfold/
 
-### Full Reference Lists
+# ColabFold (Colab-friendly version)
+AF2-Ref-src/colabfold/
 
-Each model has a comprehensive reference paper list covering foundational works, methods, and applications:
+# MMseqs2 (Sequence search)
+AF2-Ref-src/mmseqs2/
 
-- [AlphaFold2 References](alphafold2/AF2REFPAPERS.md) - 83 papers (structural biology, deep learning, MSA)
-- [AlphaFold3 References](alphafold3/AF3REFPAPERS.md) - 50 papers (diffusion models, transformers, confidence)
-- [Boltz-1 References](boltz/BOLTZREFPAPERS.md) - 46 papers (open source, docking, PLMs)
-- [Boltz-2 References](boltz2/BOLTZ2REFPAPERS.md) - 50 papers (binding affinity, FEP, virtual screening)
+# HH-suite (Template search)
+AF2-Ref-src/hh-suite/
 
-## License
+# trRosetta2 (Predecessor model)
+AF2-Ref-src/trRosetta2/
 
-Educational use only. Please refer to the original papers and repositories for licensing information.
+# ESM (Facebook protein language model)
+AF2-Ref-src/esm/
+
+# UniRep (Protein representations)
+AF2-Ref-src/unirep/
+
+# SeqVec (Sequence embeddings)
+AF2-Ref-src/seqvec/
+```
+
+To initialize submodules after cloning:
+```bash
+git submodule update --init --recursive
+```
+
+
+
+# Data availability
+All input data are freely available from public sources.
+
+Structures from the PDB were used for training and as templates (https://www.wwpdb.org/ftp/pdb-ftp-sites; for the associated sequence data and 40% sequence clustering see also https://ftp.wwpdb.org/pub/pdb/derived_data/ and https://cdn.rcsb.org/resources/sequence/clusters/bc-40.out).
+
+ Training used a version of the PDB downloaded 28/08/2019, while CASP14 template search used a version downloaded 14/05/2020. Template search also used the PDB70 data- base, downloaded 13/05/2020 (https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/).
+
+We show experimental structures from the PDB with accessions
+6Y4F<sup>76</sup>, 6YJ1<sup>77</sup>, 6VR4<sup>78</sup>, 6SK0<sup>79</sup>, 6FES<sup>80</sup>, 6W6W<sup>81</sup>, 6T1Z<sup>82</sup>, and 7JTL<sup>83</sup>. 
+
+For MSA lookup at both training and prediction time, 
+
+we used UniRef90 v2020_01 (https://ftp.ebi.ac.uk/pub/databases/uniprot/previous_releases/release-2020_01/uniref/), 
+
+BFD (https://bfd.mmseqs.com), Uniclust30 v2018_08 (https://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/), 
+
+and MGnify clusters v2018_12 (https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2018_12/). Uniclust30 v2018_08 was further used as input for constructing a distillation structure dataset.
+
+
+# Code and programmings availability
+### Source code
+ for the AlphaFold model, trained weights, and an inference script is available under an open-source license at https://github.com/deepmind/alphafold. 
+
+### Neural networks
+ Neural networks were developed with 
+- TensorFlow v1 (https://github.com/tensorflow/tensorflow), 
+- Sonnet v1 (https://github.com/deepmind/sonnet),
+- JAX v0.1.69 (https://github.com/google/jax/), 
+- Haiku v0.0.4 (https://github.com/deepmind/dm-haiku).
+
+### MSA search
+For MSA search on 
+- UniRef90, MGnify clusters, 
+and reduced BFD we used jackhmmer and for template search on the PDB SEQRES we used 
+- hmmsearch, both from HMMER v3.3 (http://eddylab.org/soft-ware/hmmer/).
+
+For template search against PDB70, we used HHsearch from HH-suite v3.0-beta.3 14/07/2017 (https://github.com/soedinglab/hh-suite). 
+For constrained relaxation of structures, we used OpenMM v7.3.1 (https://github.com/openmm/openmm) with the Amber99sb force field.
+
+
+### Docking analysis
+ Docking analysis on DGAT used 
+ - P2Rank v2.1 (https://github.com/rdk/p2rank), 
+ - MGLTools v1.5.6 (https://ccsb.scripps.edu/mgltools/) 
+ - and AutoDockVina v1.1.2 (http://vina.scripps.edu/download/) on a workstation running Debian GNU/Linux rodete 5.10.40-1rodete1-amd64 x86_64.
+
+### Data analysis 
+Data analysis used 
+- Python v3.6 (https://www.python.org/), 
+- NumPy v1.16.4 (https://github.com/numpy/numpy), 
+- SciPy v1.2.1 (https://www.scipy.org/), 
+- seaborn v0.11.1 (https://github.com/mwaskom/seaborn), 
+- scikit-learn v0.24.0 (https://github.com/scikit-learn/), 
+- Matplotlib v3.3.4 (https://github.com/matplotlib/matplotlib), 
+- pandas v1.1.5 (https://github.com/pandas-dev/pandas), 
+- and Colab (https://research.google.com/colaboratory). 
+- TM-align v20190822 (https://zhanglab.dcmb.med.umich.edu/TM-align) was used for computing TM-scores.
+
+ ### Structure analysis  
+ Structure analysis used Pymol v2.3.0 (https://github.com/schrodinger/pymol-open-source).
