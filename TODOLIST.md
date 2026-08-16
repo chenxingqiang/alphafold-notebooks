@@ -34,6 +34,9 @@
 
 ### Fine-tuning Framework Enhancement
 
+- [x] AlphaFold 3 weight download/validation tooling (`finetuning/af3/`)
+- [x] AF3 parameter schema vendored (405 entries, metadata only)
+- [x] AF3 Haiku-parameter-space LoRA + `AlphaFold3FineTuner`
 - [ ] Add pre-trained LoRA weights for common tasks
 - [ ] Create Colab notebooks for cloud training
 - [ ] Build benchmark datasets for each task type
@@ -225,4 +228,4 @@ Location: `alphafold2/source/`
 
 ---
 
-*Last updated: January 2026*
+*Last updated: August 2026*

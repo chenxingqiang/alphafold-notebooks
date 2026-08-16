@@ -103,13 +103,42 @@ We now include **AlphaFold3** algorithm notebooks! AF3 introduces significant ar
 
 ```bash
 # Official AlphaFold3
-AF3-Ref-src/alphafold3-official/
+alphafold3/ref-src/alphafold3-official/
 
 # PyTorch Implementation (lucidrains)
-AF3-Ref-src/alphafold3-pytorch/
+alphafold3/ref-src/alphafold3-pytorch/
 
 # Architecture Walkthrough
-AF3-Ref-src/alphafold3-walkthrough/
+alphafold3/ref-src/alphafold3-walkthrough/
+```
+
+#### AF3 Model Weights & Fine-tuning (Updated 2026)
+
+AlphaFold 3 **v3.0.4** weights are now **directly downloadable** (no request form):
+
+- Download: https://storage.googleapis.com/alphafold3/af3.bin.zst
+- Terms: [AlphaFold 3 Model Parameters Terms of Use](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md)
+- Design doc: [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md)
+
+This repo provides parameter-layer tooling in `finetuning/af3/`:
+
+```bash
+# Schema summary (metadata only — no weight values in the repo)
+python -m finetuning.af3.weights info
+
+# After downloading af3.bin.zst to /path/to/weights/
+python -m finetuning.af3.weights check /path/to/weights/
+```
+
+```python
+from finetuning.af3 import AlphaFold3FineTuner, AF3FineTuneConfig
+
+# Load downloaded checkpoint and attach LoRA adapters (~2–3% params at rank 8)
+tuner = AlphaFold3FineTuner.from_pretrained("/path/to/weights/")
+print(tuner.parameter_summary().describe())
+
+# Save only LoRA deltas (safe to share within your org per Google terms)
+tuner.save_adapter("./af3_lora_adapter.npz")
 ```
 
 ### 📓 Boltz Algorithm Notebooks (NEW!)

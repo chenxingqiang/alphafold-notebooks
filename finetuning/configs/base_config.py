@@ -311,6 +311,19 @@ PRESET_CONFIGS = {
         task=TaskType.STRUCTURE_PREDICTION,
         freeze_evoformer_layers=24,  # Freeze first 24 layers
     ),
+    "alphafold3_pairformer_lora": FineTuningConfig(
+        model=ModelConfig(
+            model_type=ModelType.ALPHAFOLD3,
+            num_evoformer_blocks=48,
+            pair_channel=128,
+            seq_channel=384,
+        ),
+        training=TrainingConfig(learning_rate=1e-4, max_steps=50000),
+        strategy=FineTuningStrategy.LORA,
+        task=TaskType.STRUCTURE_PREDICTION,
+        lora_rank=8,
+        lora_alpha=16.0,
+    ),
     "boltz1_property_adapter": FineTuningConfig(
         model=ModelConfig(model_type=ModelType.BOLTZ1),
         training=TrainingConfig(learning_rate=1e-4, max_steps=20000),
