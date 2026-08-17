@@ -1,66 +1,225 @@
 # AlphaFold Codec
 
-A curated learning and fine-tuning reference for **AlphaFold2**, **AlphaFold3**, **Boltz-1**, and **Boltz-2** — algorithm notebooks, source mappings, reference papers, and a unified fine-tuning framework.
+Fine-tune **AlphaFold 3**, **AlphaFold 2**, **Boltz-1**, and **Boltz-2** on downstream protein tasks. Algorithm notebooks and papers are the supporting layer.
 
-[![Notebooks](https://img.shields.io/badge/notebooks-85%2B-blue)](#-repository-layout)
-[![Papers](https://img.shields.io/badge/papers-229-green)](#references)
 [![Fine-tuning](https://img.shields.io/badge/fine--tuning-50%2B%20tasks-orange)](finetuning/FINETUNING_GUIDE.md)
+[![AF3 weights](https://img.shields.io/badge/AF3%20weights-v3.0.4%20public-purple)](#alphafold-3-weights)
+[![Notebooks](https://img.shields.io/badge/notebooks-85%2B-blue)](#learning-by-code)
+[![Papers](https://img.shields.io/badge/papers-229-green)](#references)
 
----
-
-## Repository Architecture
-
-![Repository architecture diagram](assets/architecture.svg)
-
-The repo is organized in three layers:
-
-1. **Model families** — one directory per model (`alphafold2/`, `alphafold3/`, `boltz/`, `boltz2/`)
-2. **Learning resources** — Jupyter notebooks (NumPy re-implementations), papers, optional `source/` and `ref-src/` submodules
-3. **Fine-tuning** — shared `finetuning/` framework with model-specific adapters (including AF3 weight I/O + LoRA)
-
----
-
-## Quick Navigation
-
-| Model | Algorithms | Index | Papers | Fine-tuning |
-|-------|------------|-------|--------|-------------|
-| **AlphaFold 2** | 32 | [notebooks/ALGORITHM_INDEX.md](alphafold2/notebooks/ALGORITHM_INDEX.md) | [AF2REFPAPERS.md](alphafold2/AF2REFPAPERS.md) | LoRA / Full |
-| **AlphaFold 3** | 23 | [notebooks/ALGORITHM_INDEX.md](alphafold3/notebooks/ALGORITHM_INDEX.md) | [AF3REFPAPERS.md](alphafold3/AF3REFPAPERS.md) | [finetuning/af3/](finetuning/af3/) |
-| **Boltz-1** | 20 | [notebooks/ALGORITHM_INDEX.md](boltz/notebooks/ALGORITHM_INDEX.md) | [BOLTZREFPAPERS.md](boltz/BOLTZREFPAPERS.md) | LoRA / Adapter |
-| **Boltz-2** | 10 | [notebooks/ALGORITHM_INDEX.md](boltz2/notebooks/ALGORITHM_INDEX.md) | [BOLTZ2REFPAPERS.md](boltz2/BOLTZ2REFPAPERS.md) | Affinity head |
-
-| Resource | Link |
-|----------|------|
+| Start here | Link |
+|------------|------|
 | Fine-tuning guide | [finetuning/FINETUNING_GUIDE.md](finetuning/FINETUNING_GUIDE.md) |
-| AF3 weights design | [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md) |
-| Project TODO | [TODOLIST.md](TODOLIST.md) |
-| Blog post | [BLOG_POST.md](BLOG_POST.md) |
+| AF3 weight + LoRA design | [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md) |
+| AF3 module | [`finetuning/af3/`](finetuning/af3/) |
+| Architecture figure | [`assets/architecture.svg`](assets/architecture.svg) |
 
 ---
 
-## Repository Layout
+## Fine-tuning (primary)
+
+This repo is built around a shared `finetuning/` framework. Official AlphaFold 3 **v3.0.4** weights are now a public `.bin.zst` file (no request form). This repo loads that checkpoint, validates all 405 tensors, attaches LoRA, and exports **adapter-only** files so you never redistribute the base weights.
+
+### Architecture (fine-tune first)
+
+<p align="center">
+  <img src="assets/architecture.svg" alt="Fine-tuning pipeline: AF3 weights, LoRA, task heads, then base models and notebooks" width="100%">
+</p>
+
+<details>
+<summary><b>Text / Mermaid fallback</b> (if the SVG does not render)</summary>
+
+```mermaid
+flowchart LR
+  W["Download af3.bin.zst"] --> V["Validate schema<br/>405 tensors / 368.4M"]
+  V --> L["Attach LoRA<br/>freeze AF3 base"]
+  L --> H["Train task head"]
+  H --> A["Export adapter.npz<br/>deltas only"]
+
+  subgraph framework ["finetuning/"]
+    AF3["af3/ I/O + LoRA"]
+    CFG["configs/"]
+    MOD["modules/ LoRA Adapter"]
+    HD["heads/ 15+"]
+    TR["trainers/"]
+    REG["registry.py"]
+  end
+
+  L --> AF3
+  H --> HD
+  A --> REG
+```
+
+**Flow**
+
+1. Download / check AF3 weights (`python -m finetuning.af3.weights`)
+2. Attach LoRA on Pairformer + Diffusion (`AlphaFold3FineTuner`)
+3. Train a task head (affinity, antibody, enzyme, PPI, ...)
+4. Save `adapter.npz` only (base AF3 weights stay frozen and are not written)
+
+**Then** the four model families (`alphafold2/`, `alphafold3/`, `boltz/`, `boltz2/`) provide notebooks and papers.
+
+</details>
+
+### Supported models and strategies
+
+| Model | Runtime | Fine-tune | Notes |
+|-------|---------|-----------|--------|
+| **AlphaFold 3** | JAX / Haiku | Full, Head-only, **LoRA** | Public weights `af3.bin.zst`; use [`finetuning/af3`](finetuning/af3/) |
+| **AlphaFold 2** | JAX / Haiku | Full, Head-only, LoRA | 32 algorithm notebooks |
+| **Boltz-1** | PyTorch | Full, LoRA, Adapter | Open AF3-class interactions |
+| **Boltz-2** | PyTorch | Full, LoRA, Adapter | Binding-affinity head |
+
+| Strategy | Trainable params | When to use |
+|----------|------------------|-------------|
+| **LoRA** | ~0.1–3% | Default for AF3; small data |
+| **Adapter** | ~1% | Modular / multi-task |
+| **Head-only** | ~5% | New prediction task |
+| **Full** | 100% | Large data, max accuracy |
+
+### AlphaFold 3 weights
+
+DeepMind now publishes parameters at a public URL (compatible with any `3.0.x` code):
+
+- File: https://storage.googleapis.com/alphafold3/af3.bin.zst
+- Terms (non-commercial, do not redistribute weights): [WEIGHTS_TERMS_OF_USE.md](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md)
+- Schema in this repo: 405 entries, 368,384,602 parameters (metadata only)
+
+```bash
+pip install numpy zstandard
+
+python -m finetuning.af3.weights info
+python -m finetuning.af3.weights download /path/to/weights --accept-terms
+python -m finetuning.af3.weights check /path/to/weights
+```
+
+```python
+from finetuning.af3 import AlphaFold3FineTuner, AF3FineTuneConfig, LoRAConfig
+
+config = AF3FineTuneConfig(strategy="lora", lora=LoRAConfig(rank=8, alpha=16.0))
+tuner = AlphaFold3FineTuner.from_pretrained("/path/to/weights/", config)
+print(tuner.parameter_summary().describe())
+
+# Adapter-only export: does not write AF3 base weight values
+tuner.save_adapter("./af3_lora_adapter.npz")
+
+# Merged checkpoint is restricted; requires an explicit acknowledgement
+# tuner.export_merged_weights("./merged.bin", acknowledge_weights_terms=True)
+```
+
+### Task-registry quick start (Boltz / PyTorch)
+
+```python
+from finetuning import TaskRegistry, create_finetuning_pipeline
+from finetuning.modules import LoRAModule
+from finetuning.heads import AffinityHead, AffinityHeadConfig
+from finetuning import FineTuningConfig, Trainer
+
+print(TaskRegistry.list_all_tasks())  # 50+ tasks
+info = TaskRegistry.get_task_info("binding_affinity")
+
+pipeline = create_finetuning_pipeline(
+    task="binding_affinity",
+    base_model=model,
+    strategy="lora",
+)
+
+# Or assemble manually
+lora_model = LoRAModule(model, rank=8, alpha=16.0)
+head = AffinityHead(AffinityHeadConfig())
+trainer = Trainer(lora_model, FineTuningConfig(strategy="lora", task="binding_affinity"), train_loader, val_loader)
+trainer.train()
+lora_model.save_lora_weights("./lora_weights.pt")
+```
+
+### Downstream tasks (50+)
+
+<details>
+<summary><b>Drug discovery</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Binding Affinity | pKd, pIC50, dG, Ki | Lead optimization, SAR |
+| Virtual Screening | Hit probability, ranking | HTS prioritization |
+| ADMET | Absorption, metabolism, toxicity | Compound triage |
+
+</details>
+
+<details>
+<summary><b>Protein engineering</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Stability | ddG, Tm shift | Thermostabilization |
+| Solubility | Expression score | Biomanufacturing |
+| Mutation Effects | Fitness, pathogenicity | Variant analysis |
+
+</details>
+
+<details>
+<summary><b>Antibody design</b></summary>
+
+| Task | Outputs | Applications |
+|------|---------|--------------|
+| Affinity Maturation | CDR binding, ddG | Therapeutic optimization |
+| Humanization | Humanness score | Drug development |
+| Developability | Aggregation, viscosity | Manufacturing |
+
+</details>
+
+<details>
+<summary><b>Enzyme / PPI / function / immunology / quality</b></summary>
+
+| Category | Outputs |
+|----------|---------|
+| Enzyme | kcat, Km, specificity, directed evolution |
+| PPI | Kd, interface residues, hot-spot ddG |
+| Function | GO terms, EC numbers, localization |
+| Immunology | B/T epitopes, ADA risk |
+| Structure quality | pLDDT, pAE, contacts, disorder |
+
+</details>
+
+### `finetuning/` layout
+
+```
+finetuning/
+├── af3/                 # AF3 binary I/O, schema, LoRA, CLI, FineTuner
+├── configs/             # FineTuningConfig + task / LoRA presets
+├── modules/             # LoRA, Adapter, prompt tuning
+├── heads/               # Affinity, antibody, PPI, enzyme, GO, epitope, ...
+├── trainers/            # Trainer, DistributedTrainer, callbacks
+├── data/                # Datasets and transforms
+├── registry.py          # TaskRegistry + create_finetuning_pipeline
+├── tests/               # 101 unit tests for AF3 weight / LoRA path
+└── FINETUNING_GUIDE.md
+```
+
+---
+
+## Repository layout
 
 ```
 alphafold-notebooks/
-├── alphafold2/          # AF2 notebooks (32), source/, references/, ref-src/
-├── alphafold3/          # AF3 notebooks (23), AF3 weight design doc
+├── finetuning/          # PRIMARY: shared fine-tuning framework
+├── alphafold3/          # AF3 notebooks (23) + weight design doc
+├── alphafold2/          # AF2 notebooks (32) + source/
 ├── boltz/               # Boltz-1 notebooks (20)
 ├── boltz2/              # Boltz-2 notebooks (10)
-├── finetuning/          # Shared fine-tuning framework
-│   ├── af3/             # AF3 weight I/O, schema, LoRA, CLI
-│   ├── configs/         # Training & task configs
-│   ├── modules/         # LoRA, Adapter, Prompt tuning
-│   ├── heads/           # 15+ task-specific heads
-│   └── trainers/        # Trainer utilities
-├── assets/              # Images + architecture.svg
+├── assets/architecture.svg
 └── .gitmodules          # 14 reference submodules
 ```
-
-Initialize submodules after cloning:
 
 ```bash
 git submodule update --init --recursive
 ```
+
+| Model | Notebooks | Index | Papers |
+|-------|-----------|-------|--------|
+| AlphaFold 2 | 32 | [ALGORITHM_INDEX](alphafold2/notebooks/ALGORITHM_INDEX.md) | [AF2REFPAPERS](alphafold2/AF2REFPAPERS.md) |
+| AlphaFold 3 | 23 | [ALGORITHM_INDEX](alphafold3/notebooks/ALGORITHM_INDEX.md) | [AF3REFPAPERS](alphafold3/AF3REFPAPERS.md) |
+| Boltz-1 | 20 | [ALGORITHM_INDEX](boltz/notebooks/ALGORITHM_INDEX.md) | [BOLTZREFPAPERS](boltz/BOLTZREFPAPERS.md) |
+| Boltz-2 | 10 | [ALGORITHM_INDEX](boltz2/notebooks/ALGORITHM_INDEX.md) | [BOLTZ2REFPAPERS](boltz2/BOLTZ2REFPAPERS.md) |
 
 ---
 
@@ -169,34 +328,7 @@ alphafold3/ref-src/alphafold3-pytorch/
 alphafold3/ref-src/alphafold3-walkthrough/
 ```
 
-#### AF3 Model Weights & Fine-tuning (Updated 2026)
-
-AlphaFold 3 **v3.0.4** weights are now **directly downloadable** (no request form):
-
-- Download: https://storage.googleapis.com/alphafold3/af3.bin.zst
-- Terms: [AlphaFold 3 Model Parameters Terms of Use](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md)
-- Design doc: [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md)
-
-This repo provides parameter-layer tooling in `finetuning/af3/`:
-
-```bash
-# Schema summary (metadata only — no weight values in the repo)
-python -m finetuning.af3.weights info
-
-# After downloading af3.bin.zst to /path/to/weights/
-python -m finetuning.af3.weights check /path/to/weights/
-```
-
-```python
-from finetuning.af3 import AlphaFold3FineTuner, AF3FineTuneConfig
-
-# Load downloaded checkpoint and attach LoRA adapters (~2–3% params at rank 8)
-tuner = AlphaFold3FineTuner.from_pretrained("/path/to/weights/")
-print(tuner.parameter_summary().describe())
-
-# Save only LoRA deltas (safe to share within your org per Google terms)
-tuner.save_adapter("./af3_lora_adapter.npz")
-```
+Weights, LoRA, and the fine-tuning CLI are documented at the top: [Fine-tuning (primary)](#fine-tuning-primary).
 
 ### 📓 Boltz Algorithm Notebooks (NEW!)
 
@@ -259,208 +391,8 @@ boltz/ref-src/boltzina/
 ### MD+Alphafold2
 - https://github.com/pablo-arantes/Making-it-rain
 
----
+Fine-tuning APIs, AF3 weights, LoRA, and task heads live at the top of this README: [Fine-tuning (primary)](#fine-tuning-primary). Full guide: [finetuning/FINETUNING_GUIDE.md](finetuning/FINETUNING_GUIDE.md).
 
-## 🔧 Fine-tuning Framework (NEW!)
-
-We provide a comprehensive **fine-tuning framework** for adapting protein structure prediction models to downstream tasks.
-
-👉 **[Full Fine-tuning Guide](finetuning/FINETUNING_GUIDE.md)**
-
-### Supported Models
-
-| Model | Framework | Fine-tuning Support |
-|-------|-----------|-------------------|
-| AlphaFold2 | JAX/Haiku | ✅ Full, Head-only, LoRA |
-| AlphaFold3 | JAX/Haiku | ✅ Full, Head-only, LoRA |
-| Boltz-1 | PyTorch | ✅ Full, LoRA, Adapter |
-| Boltz-2 | PyTorch | ✅ Full, LoRA, Adapter |
-
-### Fine-tuning Strategies
-
-| Strategy | Trainable Params | Use Case |
-|----------|-----------------|----------|
-| **LoRA** | ~0.1% | Small datasets, efficient fine-tuning |
-| **Adapter** | ~1% | Modular, multiple tasks |
-| **Head-only** | ~5% | New prediction tasks |
-| **Full** | 100% | Large datasets, maximum performance |
-
-### Supported Tasks (50+ Task Types)
-
-We support comprehensive task coverage inspired by production platforms like ProteinBase.com:
-
-<details>
-<summary><b>💊 Drug Discovery</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| Binding Affinity | pKd, pIC50, ΔG, Ki | Lead optimization, SAR |
-| Virtual Screening | Hit probability, ranking | HTS prioritization |
-| ADMET | Absorption, metabolism, toxicity | Compound triage |
-
-</details>
-
-<details>
-<summary><b>🔬 Protein Engineering</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| Stability | ΔΔG, Tm shift | Thermostabilization |
-| Solubility | Expression score | Biomanufacturing |
-| Mutation Effects | Fitness, pathogenicity | Variant analysis |
-
-</details>
-
-<details>
-<summary><b>🧫 Antibody Design</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| Affinity Maturation | CDR binding, ΔΔG | Therapeutic optimization |
-| Humanization | Humanness score | Drug development |
-| Developability | Aggregation, viscosity | Manufacturing |
-
-</details>
-
-<details>
-<summary><b>⚗️ Enzyme Engineering</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| Activity | kcat, Km, kcat/Km | Catalyst design |
-| Specificity | Substrate profiles | Industrial enzymes |
-| Directed Evolution | Fitness landscapes | Protein engineering |
-
-</details>
-
-<details>
-<summary><b>🔗 Protein-Protein Interactions</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| PPI Binding | Kd, interface stability | Complex analysis |
-| Interface Prediction | Contact residues | Structure analysis |
-| Hot Spot Detection | ΔΔG per residue | PPI drug targets |
-
-</details>
-
-<details>
-<summary><b>🧬 Function Prediction</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| GO Terms | MF, BP, CC | Annotation |
-| EC Numbers | Enzyme classification | Function discovery |
-| Localization | Subcellular compartment | Systems biology |
-
-</details>
-
-<details>
-<summary><b>🛡️ Immunology</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| B-cell Epitopes | Epitope probability | Vaccine design |
-| T-cell Epitopes | MHC binding | Immunotherapy |
-| Immunogenicity | ADA risk | Drug safety |
-
-</details>
-
-<details>
-<summary><b>📊 Structure Quality</b></summary>
-
-| Task | Outputs | Applications |
-|------|---------|--------------|
-| Confidence | pLDDT, pAE, pTM | Model validation |
-| Disorder | IDR prediction | Structure analysis |
-| Contacts | Distance maps | Validation |
-
-</details>
-
-### Quick Start
-
-```python
-from finetuning import TaskRegistry, create_finetuning_pipeline
-from finetuning.modules import LoRAModule
-from finetuning.heads import AffinityHead
-
-# Option 1: Use Task Registry (Recommended)
-# List all available tasks
-print(TaskRegistry.list_all_tasks())  # 50+ tasks
-
-# Get task info and recommendations
-info = TaskRegistry.get_task_info("binding_affinity")
-print(f"Recommended LoRA rank: {info.recommended_rank}")
-
-# Create pipeline automatically
-pipeline = create_finetuning_pipeline(
-    task="binding_affinity",
-    base_model=model,
-    strategy="lora",
-)
-
-# Option 2: Manual Setup
-from finetuning import FineTuningConfig, Trainer
-
-# 1. Load pretrained model
-model = load_pretrained_boltz2()
-
-# 2. Apply LoRA (only ~0.1% parameters trainable)
-lora_model = LoRAModule(model, rank=8, alpha=16.0)
-
-# 3. Add task-specific head
-affinity_head = AffinityHead(AffinityHeadConfig())
-
-# 4. Train
-config = FineTuningConfig(
-    strategy="lora",
-    task="binding_affinity",
-    lora_rank=8,
-)
-trainer = Trainer(lora_model, config, train_loader, val_loader)
-trainer.train()
-
-# 5. Save lightweight LoRA weights
-lora_model.save_lora_weights("./lora_weights.pt")
-```
-
-### Module Overview
-
-```
-finetuning/
-├── configs/           # Configuration classes
-│   ├── base_config.py      # FineTuningConfig, ModelConfig, TrainingConfig
-│   ├── lora_config.py      # LoRA-specific configuration
-│   └── task_config.py      # 25+ task configurations (ProteinBase-style)
-├── modules/           # Fine-tuning modules
-│   ├── lora.py             # LoRA implementation (PyTorch & JAX)
-│   ├── adapter.py          # Adapter modules
-│   └── prompt_tuning.py    # Prompt tuning
-├── heads/             # Task-specific prediction heads (15+ specialized heads)
-│   ├── affinity_head.py    # Binding affinity (Boltz-2 style)
-│   ├── property_head.py    # Protein property prediction
-│   ├── contact_head.py     # Contact prediction
-│   ├── antibody_head.py    # Affinity maturation, humanization, developability
-│   ├── ppi_head.py         # PPI binding, interface, hot spots
-│   ├── enzyme_head.py      # Activity, specificity, evolution
-│   ├── function_head.py    # GO terms, EC numbers, localization
-│   └── epitope_head.py     # B-cell, T-cell epitopes, immunogenicity
-├── trainers/          # Training utilities
-│   ├── trainer.py          # Main trainer class
-│   ├── distributed_trainer.py  # Multi-GPU training
-│   └── callbacks.py        # Training callbacks (EarlyStopping, Wandb, etc.)
-├── data/              # Data utilities
-│   ├── datasets.py         # 10+ dataset classes for all task types
-│   └── transforms.py       # Data augmentation (rotation, MSA dropout)
-├── examples/          # Tutorial notebooks
-│   └── finetuning_tutorial.ipynb  # Complete walkthrough
-├── registry.py        # Task registry and factory pattern
-└── utils/             # Utility functions
-    ├── checkpoint.py       # Model checkpointing
-    └── metrics.py          # Evaluation metrics (lDDT, TM-score, AUROC, etc.)
-```
-
----
 ## Blogs 
 - [DeepMind: AlphaFold-Using-AI-for-scientific-discovery](https://deepmind.com/blog/article/AlphaFold-Using-AI-for-scientific-discovery)
 - [DeepMind: alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology](https://deepmind.com/blog/article/alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology)
