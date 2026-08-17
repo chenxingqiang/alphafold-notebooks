@@ -393,6 +393,8 @@ boltz/ref-src/boltzina/
 
 Fine-tuning APIs, AF3 weights, LoRA, and task heads live at the top of this README: [Fine-tuning (primary)](#fine-tuning-primary). Full guide: [finetuning/FINETUNING_GUIDE.md](finetuning/FINETUNING_GUIDE.md).
 
+---
+
 ## Blogs 
 - [DeepMind: AlphaFold-Using-AI-for-scientific-discovery](https://deepmind.com/blog/article/AlphaFold-Using-AI-for-scientific-discovery)
 - [DeepMind: alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology](https://deepmind.com/blog/article/alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology)
