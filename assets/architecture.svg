@@ -1,151 +1,216 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 720" role="img" aria-labelledby="title desc">
-  <title id="title">AlphaFold Codec Repository Architecture</title>
-  <desc id="desc">Layered architecture: model families, learning resources, reference submodules, and fine-tuning framework.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f8fafc"/>
-      <stop offset="100%" stop-color="#eef2ff"/>
-    </linearGradient>
-    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
-    </filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
-    </marker>
-    <style>
-      .title { font: 700 26px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #0f172a; }
-      .subtitle { font: 400 14px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #475569; }
-      .layer-label { font: 600 13px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #334155; letter-spacing: 0.04em; }
-      .box-title { font: 700 15px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #ffffff; }
-      .box-text { font: 400 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #f8fafc; }
-      .box-meta { font: 500 11px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #e2e8f0; }
-      .chip { font: 600 11px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #0f172a; }
-      .footer { font: 400 11px ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; fill: #64748b; }
-    </style>
-  </defs>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="980" viewBox="0 0 1200 980" role="img">
+  <title>AlphaFold Codec: fine-tuning first architecture</title>
+  <rect width="1200" height="980" fill="#ffffff"/>
+  <rect x="16" y="16" width="1168" height="948" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
 
-  <rect width="1120" height="720" fill="url(#bg)"/>
-  <rect x="24" y="24" width="1072" height="672" rx="18" fill="#ffffff" stroke="#e2e8f0"/>
+  <!-- Header -->
+  <text x="40" y="52" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a">AlphaFold Codec</text>
+  <text x="40" y="76" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#334155">Fine-tuning first: load official weights, attach LoRA, train a task head, export a small adapter.</text>
+  <rect x="920" y="32" width="110" height="24" rx="6" fill="#16a34a"/>
+  <text x="934" y="49" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#ffffff">50+ tasks</text>
+  <rect x="1040" y="32" width="120" height="24" rx="6" fill="#2563eb"/>
+  <text x="1052" y="49" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#ffffff">AF3 v3.0.4</text>
 
-  <text x="56" y="68" class="title">AlphaFold Codec  Repository Architecture</text>
-  <text x="56" y="94" class="subtitle">Learn structure-prediction algorithms � map to source code � fine-tune for downstream tasks</text>
+  <!-- ========== LAYER 1: AF3 WEIGHT PIPELINE ========== -->
+  <text x="40" y="112" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#7c3aed">1. ALPHAFOLD 3 WEIGHT PIPELINE (new 2026)</text>
 
-  <!-- Layer labels -->
-  <text x="56" y="138" class="layer-label">MODEL FAMILIES</text>
-  <text x="56" y="318" class="layer-label">LEARNING RESOURCES (per model directory)</text>
-  <text x="56" y="498" class="layer-label">SHARED INFRASTRUCTURE</text>
-  <text x="56" y="628" class="layer-label">DOWNSTREAM OUTPUTS</text>
+  <rect x="40" y="124" width="200" height="88" rx="10" fill="#7c3aed"/>
+  <text x="54" y="150" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Download weights</text>
+  <text x="54" y="170" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">storage.googleapis.com</text>
+  <text x="54" y="186" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">/alphafold3/af3.bin.zst</text>
+  <text x="54" y="202" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">non-commercial ToU</text>
 
-  <!-- Model family boxes -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="152" width="230" height="118" rx="14" fill="#2563eb"/>
-    <text x="76" y="182" class="box-title">AlphaFold 2</text>
-    <text x="76" y="206" class="box-text">Evoformer + Structure Module</text>
-    <text x="76" y="228" class="box-meta">32 algorithms � JAX/Haiku</text>
-    <text x="76" y="248" class="box-meta">alphafold2/</text>
+  <polygon points="250,168 266,160 266,176" fill="#64748b"/>
 
-    <rect x="306" y="152" width="230" height="118" rx="14" fill="#7c3aed"/>
-    <text x="326" y="182" class="box-title">AlphaFold 3</text>
-    <text x="326" y="206" class="box-text">Pairformer + Diffusion</text>
-    <text x="326" y="228" class="box-meta">23 algorithms � v3.0.4 weights</text>
-    <text x="326" y="248" class="box-meta">alphafold3/</text>
+  <rect x="276" y="124" width="200" height="88" rx="10" fill="#6d28d9"/>
+  <text x="290" y="150" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Validate schema</text>
+  <text x="290" y="170" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">405 named tensors</text>
+  <text x="290" y="186" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">368.4M parameters</text>
+  <text x="290" y="202" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">python -m ... check</text>
 
-    <rect x="556" y="152" width="230" height="118" rx="14" fill="#0d9488"/>
-    <text x="576" y="182" class="box-title">Boltz-1</text>
-    <text x="576" y="206" class="box-text">Open biomolecular interactions</text>
-    <text x="576" y="228" class="box-meta">20 algorithms � PyTorch</text>
-    <text x="576" y="248" class="box-meta">boltz/</text>
+  <polygon points="486,168 502,160 502,176" fill="#64748b"/>
 
-    <rect x="806" y="152" width="258" height="118" rx="14" fill="#ea580c"/>
-    <text x="826" y="182" class="box-title">Boltz-2</text>
-    <text x="826" y="206" class="box-text">Structure + binding affinity</text>
-    <text x="826" y="228" class="box-meta">10 new algorithms � affinity head</text>
-    <text x="826" y="248" class="box-meta">boltz2/</text>
-  </g>
+  <rect x="512" y="124" width="200" height="88" rx="10" fill="#5b21b6"/>
+  <text x="526" y="150" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Attach LoRA</text>
+  <text x="526" y="170" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">freeze AF3 base</text>
+  <text x="526" y="186" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">rank=8 on q/k/v/FFN</text>
+  <text x="526" y="202" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">Pairformer + Diffusion</text>
 
-  <!-- Learning resource columns -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="332" width="230" height="132" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
-    <text x="76" y="360" class="chip" fill="#1d4ed8">notebooks/</text>
-    <text x="76" y="382" class="footer" fill="#334155">NumPy re-implementations</text>
-    <text x="76" y="402" class="footer" fill="#334155">Pseudocode + tests</text>
-    <text x="76" y="430" class="chip" fill="#1d4ed8">source/</text>
-    <text x="76" y="452" class="footer" fill="#334155">AF2 reference code (JAX)</text>
+  <polygon points="722,168 738,160 738,176" fill="#64748b"/>
 
-    <rect x="306" y="332" width="230" height="132" rx="12" fill="#f5f3ff" stroke="#ddd6fe"/>
-    <text x="326" y="360" class="chip" fill="#6d28d9">notebooks/</text>
-    <text x="326" y="382" class="footer" fill="#334155">Diffusion + Pairformer</text>
-    <text x="326" y="402" class="footer" fill="#334155">23 algorithm walkthroughs</text>
-    <text x="326" y="430" class="chip" fill="#6d28d9">AF3REFPAPERS.md</text>
-    <text x="326" y="452" class="footer" fill="#334155">50 curated papers</text>
+  <rect x="748" y="124" width="200" height="88" rx="10" fill="#4c1d95"/>
+  <text x="762" y="150" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Train task head</text>
+  <text x="762" y="170" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">affinity / antibody</text>
+  <text x="762" y="186" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">enzyme / PPI / GO</text>
+  <text x="762" y="202" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">head-only or LoRA</text>
 
-    <rect x="556" y="332" width="230" height="132" rx="12" fill="#f0fdfa" stroke="#99f6e4"/>
-    <text x="576" y="360" class="chip" fill="#0f766e">notebooks/</text>
-    <text x="576" y="382" class="footer" fill="#334155">Pairformer + diffusion stack</text>
-    <text x="576" y="402" class="footer" fill="#334155">BOLTZREFPAPERS.md</text>
-    <text x="576" y="430" class="chip" fill="#0f766e">ref-src/</text>
-    <text x="576" y="452" class="footer" fill="#334155">boltz-official submodule</text>
+  <polygon points="958,168 974,160 974,176" fill="#64748b"/>
 
-    <rect x="806" y="332" width="258" height="132" rx="12" fill="#fff7ed" stroke="#fdba74"/>
-    <text x="826" y="360" class="chip" fill="#c2410c">notebooks/</text>
-    <text x="826" y="382" class="footer" fill="#334155">Affinity + contact modules</text>
-    <text x="826" y="402" class="footer" fill="#334155">BOLTZ2REFPAPERS.md</text>
-    <text x="826" y="430" class="chip" fill="#c2410c">ref-src/boltzina</text>
-    <text x="826" y="452" class="footer" fill="#334155">virtual screening tools</text>
-  </g>
+  <rect x="984" y="124" width="180" height="88" rx="10" fill="#16a34a"/>
+  <text x="998" y="150" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Export adapter</text>
+  <text x="998" y="170" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">*.npz LoRA deltas</text>
+  <text x="998" y="186" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">no base weights</text>
+  <text x="998" y="202" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">save_adapter()</text>
 
-  <!-- Vertical connectors model -> resources -->
-  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow)">
-    <path d="M171 270 L171 332"/>
-    <path d="M421 270 L421 332"/>
-    <path d="M671 270 L671 332"/>
-    <path d="M935 270 L935 332"/>
-  </g>
+  <!-- ========== LAYER 2: FRAMEWORK MODULES ========== -->
+  <text x="40" y="248" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#15803d">2. finetuning/ FRAMEWORK MODULES</text>
 
-  <!-- Fine-tuning framework -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="514" width="1008" height="88" rx="14" fill="#15803d"/>
-    <text x="76" y="544" class="box-title">finetuning/  Unified Fine-tuning Framework</text>
-    <text x="76" y="568" class="box-text">configs � modules (LoRA / Adapter) � heads (50+ tasks) � trainers � registry</text>
-    <text x="76" y="588" class="box-meta">finetuning/af3/  AF3 weight I/O � schema validation � Haiku LoRA � AlphaFold3FineTuner</text>
-  </g>
+  <rect x="40" y="260" width="180" height="100" rx="10" fill="#166534"/>
+  <text x="54" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">af3/</text>
+  <text x="54" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">record_io.py</text>
+  <text x="54" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">schema.py + LoRA</text>
+  <text x="54" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">AlphaFold3FineTuner</text>
+  <text x="54" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">weights CLI</text>
 
-  <!-- Reference submodules bar -->
-  <g filter="url(#shadow)">
-    <rect x="306" y="474" width="508" height="28" rx="8" fill="#f1f5f9" stroke="#cbd5e1"/>
-    <text x="320" y="493" class="footer" fill="#475569">git submodules: */ref-src/ (official repos, OpenFold, ColabFold, MMseqs2, &)</text>
-  </g>
+  <rect x="236" y="260" width="180" height="100" rx="10" fill="#15803d"/>
+  <text x="250" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">configs/</text>
+  <text x="250" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">FineTuningConfig</text>
+  <text x="250" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">LoRA / task presets</text>
+  <text x="250" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">alphafold3_pairformer_lora</text>
+  <text x="250" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">boltz2_affinity_lora</text>
 
-  <!-- Connectors to finetuning -->
-  <g stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)">
-    <path d="M171 464 L171 514"/>
-    <path d="M421 464 L421 514"/>
-    <path d="M671 464 L671 514"/>
-    <path d="M935 464 L935 514"/>
-    <path d="M560 602 L560 648"/>
-  </g>
+  <rect x="432" y="260" width="180" height="100" rx="10" fill="#16a34a"/>
+  <text x="446" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">modules/</text>
+  <text x="446" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">LoRA (PyTorch + JAX)</text>
+  <text x="446" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">Adapter bottleneck</text>
+  <text x="446" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">Prompt tuning</text>
+  <text x="446" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dcfce7">freeze backbone</text>
 
-  <!-- Downstream outputs -->
-  <g filter="url(#shadow)">
-    <rect x="56" y="648" width="190" height="36" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="72" y="671" class="chip">Structure prediction</text>
+  <rect x="628" y="260" width="180" height="100" rx="10" fill="#22c55e"/>
+  <text x="642" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14532d">heads/</text>
+  <text x="642" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">Affinity / Property</text>
+  <text x="642" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">Antibody / PPI</text>
+  <text x="642" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">Enzyme / Function</text>
+  <text x="642" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">Epitope / Contact</text>
 
-    <rect x="266" y="648" width="190" height="36" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="282" y="671" class="chip">Binding affinity</text>
+  <rect x="824" y="260" width="160" height="100" rx="10" fill="#4ade80"/>
+  <text x="838" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14532d">trainers/</text>
+  <text x="838" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">Trainer</text>
+  <text x="838" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">DistributedTrainer</text>
+  <text x="838" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">callbacks / ckpt</text>
+  <text x="838" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">metrics</text>
 
-    <rect x="476" y="648" width="190" height="36" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="492" y="671" class="chip">Antibody design</text>
+  <rect x="1000" y="260" width="164" height="100" rx="10" fill="#86efac"/>
+  <text x="1014" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14532d">registry.py</text>
+  <text x="1014" y="304" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">TaskRegistry</text>
+  <text x="1014" y="320" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">create_pipeline()</text>
+  <text x="1014" y="336" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">list_all_tasks()</text>
+  <text x="1014" y="352" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#14532d">50+ task types</text>
 
-    <rect x="686" y="648" width="190" height="36" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="702" y="671" class="chip">Enzyme engineering</text>
+  <!-- Connectors from pipeline to framework -->
+  <line x1="140" y1="212" x2="130" y2="260" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="376" y1="212" x2="326" y2="260" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="612" y1="212" x2="522" y2="260" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="848" y1="212" x2="718" y2="260" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="1074" y1="212" x2="1082" y2="260" stroke="#94a3b8" stroke-width="2"/>
 
-    <rect x="896" y="648" width="168" height="36" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="912" y="671" class="chip">Function / PPI</text>
-  </g>
+  <!-- ========== LAYER 3: STRATEGIES ========== -->
+  <text x="40" y="396" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#0f766e">3. STRATEGIES (trainable fraction)</text>
 
-  <!-- Side legend -->
-  <rect x="900" y="56" width="164" height="72" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
-  <text x="916" y="78" class="footer">85+ notebooks</text>
-  <text x="916" y="96" class="footer">229 reference papers</text>
-  <text x="916" y="114" class="footer">50+ fine-tune tasks</text>
+  <rect x="40" y="408" width="270" height="56" rx="8" fill="#0f766e"/>
+  <text x="54" y="432" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">LoRA  ~0.1 to 3%</text>
+  <text x="54" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">default for AF3 / small data</text>
+
+  <rect x="326" y="408" width="270" height="56" rx="8" fill="#0d9488"/>
+  <text x="340" y="432" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Adapter  ~1%</text>
+  <text x="340" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">modular, multi-task</text>
+
+  <rect x="612" y="408" width="270" height="56" rx="8" fill="#14b8a6"/>
+  <text x="626" y="432" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Head-only  ~5%</text>
+  <text x="626" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">new prediction heads</text>
+
+  <rect x="898" y="408" width="266" height="56" rx="8" fill="#2dd4bf"/>
+  <text x="912" y="432" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#134e4a">Full  100%</text>
+  <text x="912" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#134e4a">large data, max accuracy</text>
+
+  <!-- ========== LAYER 4: BASE MODELS ========== -->
+  <text x="40" y="500" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">4. BASE MODELS (frozen backbone + notebooks)</text>
+
+  <rect x="40" y="512" width="270" height="120" rx="10" fill="#2563eb"/>
+  <text x="54" y="536" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#ffffff">AlphaFold 2</text>
+  <text x="54" y="556" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dbeafe">JAX / Haiku  |  alphafold2/</text>
+  <text x="54" y="576" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dbeafe">32 algorithm notebooks</text>
+  <text x="54" y="592" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dbeafe">Evoformer + Structure Module</text>
+  <text x="54" y="608" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dbeafe">FT: Full, Head-only, LoRA</text>
+  <text x="54" y="624" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dbeafe">source/ + 8 ref-src submodules</text>
+
+  <rect x="326" y="512" width="270" height="120" rx="10" fill="#7c3aed"/>
+  <text x="340" y="536" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#ffffff">AlphaFold 3</text>
+  <text x="340" y="556" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">JAX / Haiku  |  alphafold3/</text>
+  <text x="340" y="576" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">23 algorithm notebooks</text>
+  <text x="340" y="592" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">Pairformer 48 + Diffusion</text>
+  <text x="340" y="608" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">FT: finetuning/af3 LoRA</text>
+  <text x="340" y="624" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ede9fe">weights: af3.bin.zst public</text>
+
+  <rect x="612" y="512" width="270" height="120" rx="10" fill="#0d9488"/>
+  <text x="626" y="536" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Boltz-1</text>
+  <text x="626" y="556" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">PyTorch  |  boltz/</text>
+  <text x="626" y="576" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">20 algorithm notebooks</text>
+  <text x="626" y="592" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">open AF3-class interactions</text>
+  <text x="626" y="608" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">FT: Full, LoRA, Adapter</text>
+  <text x="626" y="624" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccfbf1">ref-src/boltz-official</text>
+
+  <rect x="898" y="512" width="266" height="120" rx="10" fill="#ea580c"/>
+  <text x="912" y="536" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Boltz-2</text>
+  <text x="912" y="556" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ffedd5">PyTorch  |  boltz2/</text>
+  <text x="912" y="576" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ffedd5">10 new algorithm notebooks</text>
+  <text x="912" y="592" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ffedd5">binding affinity head</text>
+  <text x="912" y="608" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ffedd5">FT: Full, LoRA, Adapter</text>
+  <text x="912" y="624" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ffedd5">ref-src/boltzina screening</text>
+
+  <!-- ========== LAYER 5: DOWNSTREAM TASKS ========== -->
+  <text x="40" y="668" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#b45309">5. DOWNSTREAM TASKS (heads/ + TaskRegistry)</text>
+
+  <rect x="40" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="52" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Drug disc.</text>
+  <text x="52" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">pKd / pIC50</text>
+  <text x="52" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">ADMET / VS</text>
+
+  <rect x="182" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="194" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Engineering</text>
+  <text x="194" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">ddG / Tm</text>
+  <text x="194" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">solubility</text>
+
+  <rect x="324" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="336" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Antibody</text>
+  <text x="336" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">maturation</text>
+  <text x="336" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">humanization</text>
+
+  <rect x="466" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="478" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Enzyme</text>
+  <text x="478" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">kcat / Km</text>
+  <text x="478" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">specificity</text>
+
+  <rect x="608" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="620" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">PPI</text>
+  <text x="620" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">Kd / interface</text>
+  <text x="620" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">hot spots</text>
+
+  <rect x="750" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="762" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Function</text>
+  <text x="762" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">GO / EC</text>
+  <text x="762" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">localization</text>
+
+  <rect x="892" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="904" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Immunology</text>
+  <text x="904" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">B/T epitopes</text>
+  <text x="904" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">ADA risk</text>
+
+  <rect x="1034" y="680" width="130" height="70" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1"/>
+  <text x="1046" y="704" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#9a3412">Quality</text>
+  <text x="1046" y="722" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">pLDDT / pAE</text>
+  <text x="1046" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#9a3412">contacts</text>
+
+  <!-- ========== LAYER 6: LEARNING RESOURCES ========== -->
+  <text x="40" y="788" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#475569">6. LEARNING RESOURCES (secondary)</text>
+  <rect x="40" y="800" width="1124" height="140" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+
+  <text x="56" y="828" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Per-model notebooks</text>
+  <text x="56" y="848" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">85+ Jupyter notebooks: NumPy re-implementation, pseudocode, source mapping, tests</text>
+  <text x="56" y="868" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">alphafold2/notebooks  |  alphafold3/notebooks  |  boltz/notebooks  |  boltz2/notebooks</text>
+
+  <text x="56" y="896" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Papers and submodules</text>
+  <text x="56" y="916" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">229 curated papers (AF2REFPAPERS / AF3REFPAPERS / BOLTZREFPAPERS / BOLTZ2REFPAPERS)</text>
+  <text x="56" y="932" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#334155">14 git submodules under */ref-src/: official AF, OpenFold, ColabFold, MMseqs2, Boltz, ...</text>
 </svg>
