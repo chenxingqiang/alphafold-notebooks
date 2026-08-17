@@ -384,6 +384,39 @@ trainer = Trainer(model, config, train_loader)
 trainer.train()
 ```
 
+### AlphaFold 3 Weight Utilities & LoRA Fine-tuning
+
+Since **v3.0.4**, official weights are available at
+`https://storage.googleapis.com/alphafold3/af3.bin.zst` (non-commercial use;
+see [WEIGHTS_TERMS_OF_USE.md](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md)).
+
+```bash
+pip install numpy zstandard  # zstandard required for .bin.zst files
+
+python -m finetuning.af3.weights info
+python -m finetuning.af3.weights check /path/to/model_parameters/
+```
+
+```python
+from finetuning.af3 import AlphaFold3FineTuner, AF3FineTuneConfig, LoRAConfig
+
+config = AF3FineTuneConfig(
+    strategy="lora",
+    lora=LoRAConfig(rank=8, alpha=16.0),
+)
+tuner = AlphaFold3FineTuner.from_pretrained("/path/to/model_parameters/", config)
+
+# Trainable = LoRA adapter tensors only; base AF3 weights stay frozen
+print(tuner.parameter_summary().describe())
+tuner.save_adapter("./af3_lora.npz")
+
+# Merged export requires explicit terms acknowledgement (restricted distribution)
+# tuner.export_merged_weights("./merged.bin", acknowledge_weights_terms=True)
+```
+
+See [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](../alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md) for architecture,
+compliance constraints, and the full test plan.
+
 ### List Available Tasks
 
 ```python

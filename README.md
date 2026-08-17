@@ -1,11 +1,68 @@
+# AlphaFold Codec
 
-![logo](imgs/logo2.png)
-# A reference of 'AlphaFold2 Codec' include everything of AlphaFold2.
+A curated learning and fine-tuning reference for **AlphaFold2**, **AlphaFold3**, **Boltz-1**, and **Boltz-2** — algorithm notebooks, source mappings, reference papers, and a unified fine-tuning framework.
 
-![proteins](imgs/proteins.jpeg)
+[![Notebooks](https://img.shields.io/badge/notebooks-85%2B-blue)](#-repository-layout)
+[![Papers](https://img.shields.io/badge/papers-229-green)](#references)
+[![Fine-tuning](https://img.shields.io/badge/fine--tuning-50%2B%20tasks-orange)](finetuning/FINETUNING_GUIDE.md)
 
-------------------------------------------------------------------------------------------
+---
 
+## Repository Architecture
+
+![Repository architecture diagram](assets/architecture.svg)
+
+The repo is organized in three layers:
+
+1. **Model families** — one directory per model (`alphafold2/`, `alphafold3/`, `boltz/`, `boltz2/`)
+2. **Learning resources** — Jupyter notebooks (NumPy re-implementations), papers, optional `source/` and `ref-src/` submodules
+3. **Fine-tuning** — shared `finetuning/` framework with model-specific adapters (including AF3 weight I/O + LoRA)
+
+---
+
+## Quick Navigation
+
+| Model | Algorithms | Index | Papers | Fine-tuning |
+|-------|------------|-------|--------|-------------|
+| **AlphaFold 2** | 32 | [notebooks/ALGORITHM_INDEX.md](alphafold2/notebooks/ALGORITHM_INDEX.md) | [AF2REFPAPERS.md](alphafold2/AF2REFPAPERS.md) | LoRA / Full |
+| **AlphaFold 3** | 23 | [notebooks/ALGORITHM_INDEX.md](alphafold3/notebooks/ALGORITHM_INDEX.md) | [AF3REFPAPERS.md](alphafold3/AF3REFPAPERS.md) | [finetuning/af3/](finetuning/af3/) |
+| **Boltz-1** | 20 | [notebooks/ALGORITHM_INDEX.md](boltz/notebooks/ALGORITHM_INDEX.md) | [BOLTZREFPAPERS.md](boltz/BOLTZREFPAPERS.md) | LoRA / Adapter |
+| **Boltz-2** | 10 | [notebooks/ALGORITHM_INDEX.md](boltz2/notebooks/ALGORITHM_INDEX.md) | [BOLTZ2REFPAPERS.md](boltz2/BOLTZ2REFPAPERS.md) | Affinity head |
+
+| Resource | Link |
+|----------|------|
+| Fine-tuning guide | [finetuning/FINETUNING_GUIDE.md](finetuning/FINETUNING_GUIDE.md) |
+| AF3 weights design | [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md) |
+| Project TODO | [TODOLIST.md](TODOLIST.md) |
+| Blog post | [BLOG_POST.md](BLOG_POST.md) |
+
+---
+
+## Repository Layout
+
+```
+alphafold-notebooks/
+├── alphafold2/          # AF2 notebooks (32), source/, references/, ref-src/
+├── alphafold3/          # AF3 notebooks (23), AF3 weight design doc
+├── boltz/               # Boltz-1 notebooks (20)
+├── boltz2/              # Boltz-2 notebooks (10)
+├── finetuning/          # Shared fine-tuning framework
+│   ├── af3/             # AF3 weight I/O, schema, LoRA, CLI
+│   ├── configs/         # Training & task configs
+│   ├── modules/         # LoRA, Adapter, Prompt tuning
+│   ├── heads/           # 15+ task-specific heads
+│   └── trainers/        # Trainer utilities
+├── assets/              # Images + architecture.svg
+└── .gitmodules          # 14 reference submodules
+```
+
+Initialize submodules after cloning:
+
+```bash
+git submodule update --init --recursive
+```
+
+---
 
 # Learning Source Availability
 ## Papers
@@ -27,59 +84,59 @@ We provide **32 Jupyter Notebooks** covering every algorithm from the AlphaFold2
 - NumPy implementation
 - Executable test cases with verification
 
-👉 **[Full Algorithm Index](AF2-NoteBooks/ALGORITHM_INDEX.md)**
+👉 **[Full Algorithm Index](alphafold2/notebooks/ALGORITHM_INDEX.md)**
 
 #### Quick Links by Category
 
 | Category | Algorithms | Notebooks |
 |----------|------------|-----------|
-| **Data Preprocessing** | MSA Block Deletion | [Algorithm 1](AF2-NoteBooks/algorithm-1-MSABlockDeletion.ipynb) |
-| **Embedding** | Input Embedder, relpos, one_hot | [Alg 3](AF2-NoteBooks/algorithm-3-InputEmbedder.ipynb), [Alg 4](AF2-NoteBooks/algorithm-4-relpos.ipynb), [Alg 5](AF2-NoteBooks/algorithm-5-one_hot.ipynb) |
-| **Evoformer** | Stack, MSA Attention, Triangle Ops | [Alg 6-15](AF2-NoteBooks/) |
-| **Templates** | Pair Stack, Pointwise Attention | [Alg 16](AF2-NoteBooks/algorithm-16-TemplatePairStack.ipynb), [Alg 17](AF2-NoteBooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
-| **Extra MSA** | Stack, Global Attention | [Alg 18](AF2-NoteBooks/algorithm-18-ExtraMsaStack.ipynb), [Alg 19](AF2-NoteBooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
-| **Structure Module** | IPA, Backbone, Atom Coords | [Alg 20-25](AF2-NoteBooks/) |
-| **Losses** | FAPE, Torsion, pLDDT | [Alg 26-29](AF2-NoteBooks/) |
-| **Recycling** | Inference, Training, Embedder | [Alg 30](AF2-NoteBooks/algorithm-30-RecyclingInference.ipynb), [Alg 31](AF2-NoteBooks/algorithm-31-RecyclingTraining.ipynb), [Alg 32](AF2-NoteBooks/algorithm-32-RecyclingEmbedder.ipynb) |
-| **Main Pipeline** | Full Inference | [Algorithm 2](AF2-NoteBooks/algorithm-2-Inference.ipynb) |
+| **Data Preprocessing** | MSA Block Deletion | [Algorithm 1](alphafold2/notebooks/algorithm-1-MSABlockDeletion.ipynb) |
+| **Embedding** | Input Embedder, relpos, one_hot | [Alg 3](alphafold2/notebooks/algorithm-3-InputEmbedder.ipynb), [Alg 4](alphafold2/notebooks/algorithm-4-relpos.ipynb), [Alg 5](alphafold2/notebooks/algorithm-5-one_hot.ipynb) |
+| **Evoformer** | Stack, MSA Attention, Triangle Ops | [Alg 6-15](alphafold2/notebooks/) |
+| **Templates** | Pair Stack, Pointwise Attention | [Alg 16](alphafold2/notebooks/algorithm-16-TemplatePairStack.ipynb), [Alg 17](alphafold2/notebooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
+| **Extra MSA** | Stack, Global Attention | [Alg 18](alphafold2/notebooks/algorithm-18-ExtraMsaStack.ipynb), [Alg 19](alphafold2/notebooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
+| **Structure Module** | IPA, Backbone, Atom Coords | [Alg 20-25](alphafold2/notebooks/) |
+| **Losses** | FAPE, Torsion, pLDDT | [Alg 26-29](alphafold2/notebooks/) |
+| **Recycling** | Inference, Training, Embedder | [Alg 30](alphafold2/notebooks/algorithm-30-RecyclingInference.ipynb), [Alg 31](alphafold2/notebooks/algorithm-31-RecyclingTraining.ipynb), [Alg 32](alphafold2/notebooks/algorithm-32-RecyclingEmbedder.ipynb) |
+| **Main Pipeline** | Full Inference | [Algorithm 2](alphafold2/notebooks/algorithm-2-Inference.ipynb) |
 
 <details>
 <summary><b>📋 Complete Algorithm List (Click to Expand)</b></summary>
 
 | # | Algorithm | Notebook Link |
 |---|-----------|---------------|
-| 1 | MSA Block Deletion | [algorithm-1-MSABlockDeletion.ipynb](AF2-NoteBooks/algorithm-1-MSABlockDeletion.ipynb) |
-| 2 | Inference | [algorithm-2-Inference.ipynb](AF2-NoteBooks/algorithm-2-Inference.ipynb) |
-| 3 | Input Embedder | [algorithm-3-InputEmbedder.ipynb](AF2-NoteBooks/algorithm-3-InputEmbedder.ipynb) |
-| 4 | relpos | [algorithm-4-relpos.ipynb](AF2-NoteBooks/algorithm-4-relpos.ipynb) |
-| 5 | one_hot | [algorithm-5-one_hot.ipynb](AF2-NoteBooks/algorithm-5-one_hot.ipynb) |
-| 6 | Evoformer Stack | [algorithm-6-EvoformerStack.ipynb](AF2-NoteBooks/algorithm-6-EvoformerStack.ipynb) |
-| 7 | MSA Row Attention with Pair Bias | [algorithm-7-MSARowAttentionWithPairBias.ipynb](AF2-NoteBooks/algorithm-7-MSARowAttentionWithPairBias.ipynb) |
-| 8 | MSA Column Attention | [algorithm-8-MSAColumnAttention.ipynb](AF2-NoteBooks/algorithm-8-MSAColumnAttention.ipynb) |
-| 9 | MSA Transition | [algorithm-9-MSATransition.ipynb](AF2-NoteBooks/algorithm-9-MSATransition.ipynb) |
-| 10 | Outer Product Mean | [algorithm-10-OuterProductMean.ipynb](AF2-NoteBooks/algorithm-10-OuterProductMean.ipynb) |
-| 11 | Triangle Multiplication (Outgoing) | [algorithm-11-TriangleMultiplicationOutgoing.ipynb](AF2-NoteBooks/algorithm-11-TriangleMultiplicationOutgoing.ipynb) |
-| 12 | Triangle Multiplication (Incoming) | [algorithm-12-TriangleMultiplicationIncoming.ipynb](AF2-NoteBooks/algorithm-12-TriangleMultiplicationIncoming.ipynb) |
-| 13 | Triangle Attention (Starting Node) | [algorithm-13-TriangleAttentionStartingNode.ipynb](AF2-NoteBooks/algorithm-13-TriangleAttentionStartingNode.ipynb) |
-| 14 | Triangle Attention (Ending Node) | [algorithm-14-TriangleAttentionEndingNode.ipynb](AF2-NoteBooks/algorithm-14-TriangleAttentionEndingNode.ipynb) |
-| 15 | Pair Transition | [algorithm-15-PairTransition.ipynb](AF2-NoteBooks/algorithm-15-PairTransition.ipynb) |
-| 16 | Template Pair Stack | [algorithm-16-TemplatePairStack.ipynb](AF2-NoteBooks/algorithm-16-TemplatePairStack.ipynb) |
-| 17 | Template Pointwise Attention | [algorithm-17-TemplatePointwiseAttention.ipynb](AF2-NoteBooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
-| 18 | Extra MSA Stack | [algorithm-18-ExtraMsaStack.ipynb](AF2-NoteBooks/algorithm-18-ExtraMsaStack.ipynb) |
-| 19 | MSA Column Global Attention | [algorithm-19-MSAColumnGlobalAttention.ipynb](AF2-NoteBooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
-| 20 | Structure Module | [algorithm-20-StructureModule.ipynb](AF2-NoteBooks/algorithm-20-StructureModule.ipynb) |
-| 21 | Rigid from 3 Points | [algorithm-21-rigidFrom3Points.ipynb](AF2-NoteBooks/algorithm-21-rigidFrom3Points.ipynb) |
-| 22 | Invariant Point Attention | [algorithm-22-InvariantPointAttention.ipynb](AF2-NoteBooks/algorithm-22-InvariantPointAttention.ipynb) |
-| 23 | Backbone Update | [algorithm-23-BackboneUpdate.ipynb](AF2-NoteBooks/algorithm-23-BackboneUpdate.ipynb) |
-| 24 | Compute All Atom Coordinates | [algorithm-24-computeAllAtomCoordinates.ipynb](AF2-NoteBooks/algorithm-24-computeAllAtomCoordinates.ipynb) |
-| 25 | makeRotX | [algorithm-25-makeRotX.ipynb](AF2-NoteBooks/algorithm-25-makeRotX.ipynb) |
-| 26 | Rename Symmetric Ground Truth Atoms | [algorithm-26-renameSymmetricGroundTruthAtoms.ipynb](AF2-NoteBooks/algorithm-26-renameSymmetricGroundTruthAtoms.ipynb) |
-| 27 | Torsion Angle Loss | [algorithm-27-torsionAngleLoss.ipynb](AF2-NoteBooks/algorithm-27-torsionAngleLoss.ipynb) |
-| 28 | Compute FAPE | [algorithm-28-computeFAPE.ipynb](AF2-NoteBooks/algorithm-28-computeFAPE.ipynb) |
-| 29 | Predict Per-Residue LDDT | [algorithm-29-predictPerResidueLDDT.ipynb](AF2-NoteBooks/algorithm-29-predictPerResidueLDDT.ipynb) |
-| 30 | Recycling (Inference) | [algorithm-30-RecyclingInference.ipynb](AF2-NoteBooks/algorithm-30-RecyclingInference.ipynb) |
-| 31 | Recycling (Training) | [algorithm-31-RecyclingTraining.ipynb](AF2-NoteBooks/algorithm-31-RecyclingTraining.ipynb) |
-| 32 | Recycling Embedder | [algorithm-32-RecyclingEmbedder.ipynb](AF2-NoteBooks/algorithm-32-RecyclingEmbedder.ipynb) |
+| 1 | MSA Block Deletion | [algorithm-1-MSABlockDeletion.ipynb](alphafold2/notebooks/algorithm-1-MSABlockDeletion.ipynb) |
+| 2 | Inference | [algorithm-2-Inference.ipynb](alphafold2/notebooks/algorithm-2-Inference.ipynb) |
+| 3 | Input Embedder | [algorithm-3-InputEmbedder.ipynb](alphafold2/notebooks/algorithm-3-InputEmbedder.ipynb) |
+| 4 | relpos | [algorithm-4-relpos.ipynb](alphafold2/notebooks/algorithm-4-relpos.ipynb) |
+| 5 | one_hot | [algorithm-5-one_hot.ipynb](alphafold2/notebooks/algorithm-5-one_hot.ipynb) |
+| 6 | Evoformer Stack | [algorithm-6-EvoformerStack.ipynb](alphafold2/notebooks/algorithm-6-EvoformerStack.ipynb) |
+| 7 | MSA Row Attention with Pair Bias | [algorithm-7-MSARowAttentionWithPairBias.ipynb](alphafold2/notebooks/algorithm-7-MSARowAttentionWithPairBias.ipynb) |
+| 8 | MSA Column Attention | [algorithm-8-MSAColumnAttention.ipynb](alphafold2/notebooks/algorithm-8-MSAColumnAttention.ipynb) |
+| 9 | MSA Transition | [algorithm-9-MSATransition.ipynb](alphafold2/notebooks/algorithm-9-MSATransition.ipynb) |
+| 10 | Outer Product Mean | [algorithm-10-OuterProductMean.ipynb](alphafold2/notebooks/algorithm-10-OuterProductMean.ipynb) |
+| 11 | Triangle Multiplication (Outgoing) | [algorithm-11-TriangleMultiplicationOutgoing.ipynb](alphafold2/notebooks/algorithm-11-TriangleMultiplicationOutgoing.ipynb) |
+| 12 | Triangle Multiplication (Incoming) | [algorithm-12-TriangleMultiplicationIncoming.ipynb](alphafold2/notebooks/algorithm-12-TriangleMultiplicationIncoming.ipynb) |
+| 13 | Triangle Attention (Starting Node) | [algorithm-13-TriangleAttentionStartingNode.ipynb](alphafold2/notebooks/algorithm-13-TriangleAttentionStartingNode.ipynb) |
+| 14 | Triangle Attention (Ending Node) | [algorithm-14-TriangleAttentionEndingNode.ipynb](alphafold2/notebooks/algorithm-14-TriangleAttentionEndingNode.ipynb) |
+| 15 | Pair Transition | [algorithm-15-PairTransition.ipynb](alphafold2/notebooks/algorithm-15-PairTransition.ipynb) |
+| 16 | Template Pair Stack | [algorithm-16-TemplatePairStack.ipynb](alphafold2/notebooks/algorithm-16-TemplatePairStack.ipynb) |
+| 17 | Template Pointwise Attention | [algorithm-17-TemplatePointwiseAttention.ipynb](alphafold2/notebooks/algorithm-17-TemplatePointwiseAttention.ipynb) |
+| 18 | Extra MSA Stack | [algorithm-18-ExtraMsaStack.ipynb](alphafold2/notebooks/algorithm-18-ExtraMsaStack.ipynb) |
+| 19 | MSA Column Global Attention | [algorithm-19-MSAColumnGlobalAttention.ipynb](alphafold2/notebooks/algorithm-19-MSAColumnGlobalAttention.ipynb) |
+| 20 | Structure Module | [algorithm-20-StructureModule.ipynb](alphafold2/notebooks/algorithm-20-StructureModule.ipynb) |
+| 21 | Rigid from 3 Points | [algorithm-21-rigidFrom3Points.ipynb](alphafold2/notebooks/algorithm-21-rigidFrom3Points.ipynb) |
+| 22 | Invariant Point Attention | [algorithm-22-InvariantPointAttention.ipynb](alphafold2/notebooks/algorithm-22-InvariantPointAttention.ipynb) |
+| 23 | Backbone Update | [algorithm-23-BackboneUpdate.ipynb](alphafold2/notebooks/algorithm-23-BackboneUpdate.ipynb) |
+| 24 | Compute All Atom Coordinates | [algorithm-24-computeAllAtomCoordinates.ipynb](alphafold2/notebooks/algorithm-24-computeAllAtomCoordinates.ipynb) |
+| 25 | makeRotX | [algorithm-25-makeRotX.ipynb](alphafold2/notebooks/algorithm-25-makeRotX.ipynb) |
+| 26 | Rename Symmetric Ground Truth Atoms | [algorithm-26-renameSymmetricGroundTruthAtoms.ipynb](alphafold2/notebooks/algorithm-26-renameSymmetricGroundTruthAtoms.ipynb) |
+| 27 | Torsion Angle Loss | [algorithm-27-torsionAngleLoss.ipynb](alphafold2/notebooks/algorithm-27-torsionAngleLoss.ipynb) |
+| 28 | Compute FAPE | [algorithm-28-computeFAPE.ipynb](alphafold2/notebooks/algorithm-28-computeFAPE.ipynb) |
+| 29 | Predict Per-Residue LDDT | [algorithm-29-predictPerResidueLDDT.ipynb](alphafold2/notebooks/algorithm-29-predictPerResidueLDDT.ipynb) |
+| 30 | Recycling (Inference) | [algorithm-30-RecyclingInference.ipynb](alphafold2/notebooks/algorithm-30-RecyclingInference.ipynb) |
+| 31 | Recycling (Training) | [algorithm-31-RecyclingTraining.ipynb](alphafold2/notebooks/algorithm-31-RecyclingTraining.ipynb) |
+| 32 | Recycling Embedder | [algorithm-32-RecyclingEmbedder.ipynb](alphafold2/notebooks/algorithm-32-RecyclingEmbedder.ipynb) |
 
 </details>
 
@@ -87,29 +144,58 @@ We provide **32 Jupyter Notebooks** covering every algorithm from the AlphaFold2
 
 We now include **AlphaFold3** algorithm notebooks! AF3 introduces significant architectural changes including diffusion-based structure prediction.
 
-👉 **[AlphaFold3 Algorithm Index](AF3-NoteBooks/ALGORITHM_INDEX.md)**
+👉 **[AlphaFold3 Algorithm Index](alphafold3/notebooks/ALGORITHM_INDEX.md)**
 
 #### Key AF3 Components
 
 | Category | Key Algorithms | Notebooks |
 |----------|---------------|-----------|
-| **Input** | MSA Features, Templates, Atom Features | [Alg 1-4](AF3-NoteBooks/) |
-| **MSA Module** | Outer Product, MSA Attention | [Alg 5-7](AF3-NoteBooks/) |
-| **Pairformer** | Triangle Ops, Single Attention | [Alg 8-14](AF3-NoteBooks/algorithm-08-PairformerStack.ipynb) |
-| **Diffusion** | Diffusion Module, AdaLN, Transformer | [Alg 15](AF3-NoteBooks/algorithm-15-DiffusionModule.ipynb), [Alg 16](AF3-NoteBooks/algorithm-16-AdaptiveLayerNorm.ipynb) |
-| **Confidence** | Distogram, Confidence, LDDT | [Alg 20-23](AF3-NoteBooks/) |
+| **Input** | MSA Features, Templates, Atom Features | [Alg 1-4](alphafold3/notebooks/) |
+| **MSA Module** | Outer Product, MSA Attention | [Alg 5-7](alphafold3/notebooks/) |
+| **Pairformer** | Triangle Ops, Single Attention | [Alg 8-14](alphafold3/notebooks/algorithm-08-PairformerStack.ipynb) |
+| **Diffusion** | Diffusion Module, AdaLN, Transformer | [Alg 15](alphafold3/notebooks/algorithm-15-DiffusionModule.ipynb), [Alg 16](alphafold3/notebooks/algorithm-16-AdaptiveLayerNorm.ipynb) |
+| **Confidence** | Distogram, Confidence, LDDT | [Alg 20-23](alphafold3/notebooks/) |
 
 #### AF3 Source Code Submodules
 
 ```bash
 # Official AlphaFold3
-AF3-Ref-src/alphafold3-official/
+alphafold3/ref-src/alphafold3-official/
 
 # PyTorch Implementation (lucidrains)
-AF3-Ref-src/alphafold3-pytorch/
+alphafold3/ref-src/alphafold3-pytorch/
 
 # Architecture Walkthrough
-AF3-Ref-src/alphafold3-walkthrough/
+alphafold3/ref-src/alphafold3-walkthrough/
+```
+
+#### AF3 Model Weights & Fine-tuning (Updated 2026)
+
+AlphaFold 3 **v3.0.4** weights are now **directly downloadable** (no request form):
+
+- Download: https://storage.googleapis.com/alphafold3/af3.bin.zst
+- Terms: [AlphaFold 3 Model Parameters Terms of Use](https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md)
+- Design doc: [alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md](alphafold3/AF3_WEIGHTS_FINETUNING_DESIGN.md)
+
+This repo provides parameter-layer tooling in `finetuning/af3/`:
+
+```bash
+# Schema summary (metadata only — no weight values in the repo)
+python -m finetuning.af3.weights info
+
+# After downloading af3.bin.zst to /path/to/weights/
+python -m finetuning.af3.weights check /path/to/weights/
+```
+
+```python
+from finetuning.af3 import AlphaFold3FineTuner, AF3FineTuneConfig
+
+# Load downloaded checkpoint and attach LoRA adapters (~2–3% params at rank 8)
+tuner = AlphaFold3FineTuner.from_pretrained("/path/to/weights/")
+print(tuner.parameter_summary().describe())
+
+# Save only LoRA deltas (safe to share within your org per Google terms)
+tuner.save_adapter("./af3_lora_adapter.npz")
 ```
 
 ### 📓 Boltz Algorithm Notebooks (NEW!)
@@ -118,24 +204,24 @@ We now include **Boltz** algorithm notebooks! Boltz is a family of models for bi
 - **Boltz-1**: First fully open source model to approach AlphaFold3 accuracy
 - **Boltz-2**: Adds binding affinity prediction, approaching FEP accuracy 1000x faster
 
-👉 **[Boltz Algorithm Index](Boltz-NoteBooks/ALGORITHM_INDEX.md)**
+👉 **[Boltz Algorithm Index](boltz/notebooks/ALGORITHM_INDEX.md)**
 
 #### Key Boltz Components
 
 | Category | Key Algorithms | Notebooks |
 |----------|---------------|-----------|
-| **Input Processing** | Input Embedder, Atom Encoder, RelPos | [Alg 1-3](Boltz-NoteBooks/) |
-| **MSA Module** | MSA Module, Outer Product, Pair Averaging | [Alg 4-6](Boltz-NoteBooks/) |
-| **Pairformer** | Pairformer, Triangle Ops, Attention | [Alg 7-11](Boltz-NoteBooks/) |
-| **Diffusion** | Diffusion Module, Transformer, Fourier | [Alg 12-15](Boltz-NoteBooks/) |
-| **Confidence & Affinity** | Confidence, Distogram, Affinity (Boltz-2) | [Alg 16-18](Boltz-NoteBooks/) |
-| **Loss Functions** | Diffusion Loss, Confidence Loss | [Alg 19-20](Boltz-NoteBooks/) |
+| **Input Processing** | Input Embedder, Atom Encoder, RelPos | [Alg 1-3](boltz/notebooks/) |
+| **MSA Module** | MSA Module, Outer Product, Pair Averaging | [Alg 4-6](boltz/notebooks/) |
+| **Pairformer** | Pairformer, Triangle Ops, Attention | [Alg 7-11](boltz/notebooks/) |
+| **Diffusion** | Diffusion Module, Transformer, Fourier | [Alg 12-15](boltz/notebooks/) |
+| **Confidence & Affinity** | Confidence, Distogram, Affinity (Boltz-2) | [Alg 16-18](boltz/notebooks/) |
+| **Loss Functions** | Diffusion Loss, Confidence Loss | [Alg 19-20](boltz/notebooks/) |
 
 #### Boltz Source Code Submodule
 
 ```bash
 # Official Boltz Repository
-Boltz-Ref-src/boltz-official/
+boltz/ref-src/boltz-official/
 ```
 
 **Papers:**
@@ -146,25 +232,25 @@ Boltz-Ref-src/boltz-official/
 
 Boltz-2 introduces **binding affinity prediction** - the first DL model approaching FEP accuracy while being 1000x faster.
 
-👉 **[Boltz-2 Algorithm Index](Boltz2-NoteBooks/ALGORITHM_INDEX.md)**
+👉 **[Boltz-2 Algorithm Index](boltz2/notebooks/ALGORITHM_INDEX.md)**
 
 #### Boltz-2 New Features
 
 | Category | Key Algorithms | Notebooks |
 |----------|---------------|-----------|
-| **Affinity Prediction** | Affinity Module, Gaussian Smearing | [Alg 1-2](Boltz2-NoteBooks/) |
-| **Contact Guidance** | Contact Conditioning | [Alg 3](Boltz2-NoteBooks/algorithm-03-ContactConditioning.ipynb) |
-| **Enhanced v2 Modules** | Input v2, Template v2, Diffusion v2 | [Alg 5-7](Boltz2-NoteBooks/) |
-| **Improved Confidence** | Confidence v2, B-Factor | [Alg 8, 10](Boltz2-NoteBooks/) |
+| **Affinity Prediction** | Affinity Module, Gaussian Smearing | [Alg 1-2](boltz2/notebooks/) |
+| **Contact Guidance** | Contact Conditioning | [Alg 3](boltz2/notebooks/algorithm-03-ContactConditioning.ipynb) |
+| **Enhanced v2 Modules** | Input v2, Template v2, Diffusion v2 | [Alg 5-7](boltz2/notebooks/) |
+| **Improved Confidence** | Confidence v2, B-Factor | [Alg 8, 10](boltz2/notebooks/) |
 
 #### Boltz-2 Submodules
 
 ```bash
 # Official Repository (contains both Boltz-1 and Boltz-2)
-Boltz-Ref-src/boltz-official/
+boltz/ref-src/boltz-official/
 
 # Boltzina - Virtual Screening with Boltz-2
-Boltz-Ref-src/boltzina/
+boltz/ref-src/boltzina/
 ```
 
 ### Practice on Modeling Test of AF2
@@ -382,37 +468,37 @@ finetuning/
 # References 
 ## reference papers
 - [Reference papers list](https://github.com/chenxingqiang/ref-Alphafold-Code/blob/main/AF2REFPAPERS.md) here and you can download them by [Baidu Cloud Driver Link](https://pan.baidu.com/s/131uRwemUTwGvY-6kqxCYDA) with the code 9w2p.
-- Reference Papers' Source Codes are managed via git submodules in `AF2-Ref-src/`
+- Reference Papers' Source Codes are managed via git submodules in `alphafold2/ref-src/`
 
 ### 📦 AlphaFold2 Reference Source Code (Submodules)
 
 ```bash
 # Official AlphaFold (DeepMind)
-AF2-Ref-src/alphafold-official/
+alphafold2/ref-src/alphafold-official/
 
 # OpenFold (PyTorch implementation)
-AF2-Ref-src/openfold/
+alphafold2/ref-src/openfold/
 
 # ColabFold (Colab-friendly version)
-AF2-Ref-src/colabfold/
+alphafold2/ref-src/colabfold/
 
 # MMseqs2 (Sequence search)
-AF2-Ref-src/mmseqs2/
+alphafold2/ref-src/mmseqs2/
 
 # HH-suite (Template search)
-AF2-Ref-src/hh-suite/
+alphafold2/ref-src/hh-suite/
 
 # trRosetta2 (Predecessor model)
-AF2-Ref-src/trRosetta2/
+alphafold2/ref-src/trRosetta2/
 
 # ESM (Facebook protein language model)
-AF2-Ref-src/esm/
+alphafold2/ref-src/esm/
 
 # UniRep (Protein representations)
-AF2-Ref-src/unirep/
+alphafold2/ref-src/unirep/
 
 # SeqVec (Sequence embeddings)
-AF2-Ref-src/seqvec/
+alphafold2/ref-src/seqvec/
 ```
 
 To initialize submodules after cloning:
