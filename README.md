@@ -23,41 +23,48 @@ This repo is built around a shared `finetuning/` framework. Official AlphaFold 3
 ### Architecture (fine-tune first)
 
 <p align="center">
-  <img src="assets/architecture.svg" alt="Fine-tuning pipeline: AF3 weights, LoRA, task heads, then base models and notebooks" width="100%">
+  <img src="assets/architecture.svg" alt="System architecture: inputs (weights, data), fine-tune engine, outputs (adapter, restricted merge, task scores)" width="100%">
 </p>
+
+Read left to right: **inputs → engine → outputs**. The four model cards are frozen backbones. Green export is the default; red is restricted.
 
 <details>
 <summary><b>Text / Mermaid fallback</b> (if the SVG does not render)</summary>
 
 ```mermaid
 flowchart LR
-  W["Download af3.bin.zst"] --> V["Validate schema<br/>405 tensors / 368.4M"]
-  V --> L["Attach LoRA<br/>freeze AF3 base"]
-  L --> H["Train task head"]
-  H --> A["Export adapter.npz<br/>deltas only"]
-
-  subgraph framework ["finetuning/"]
-    AF3["af3/ I/O + LoRA"]
-    CFG["configs/"]
-    MOD["modules/ LoRA Adapter"]
-    HD["heads/ 15+"]
-    TR["trainers/"]
-    REG["registry.py"]
+  subgraph IN["Inputs"]
+    W["AF3 af3.bin.zst<br/>405 tensors / 368.4M"]
+    D["Your labeled set"]
+    O["AF2 / Boltz ckpt"]
   end
 
-  L --> AF3
-  H --> HD
-  A --> REG
+  subgraph ENG["finetuning/ engine"]
+    direction LR
+    L["Load"] --> C["Check schema"]
+    C --> A["Attach LoRA"]
+    A --> T["Train head"]
+  end
+
+  subgraph OUT["Outputs"]
+    AD["adapter.npz  default"]
+    MG["merged.bin  restricted"]
+    SC["task scores"]
+  end
+
+  W --> L
+  D --> T
+  T --> AD
+  T --> SC
+  A -.-> MG
 ```
 
-**Flow**
+1. Pick a task (`TaskRegistry`) and a strategy (LoRA default).
+2. Load + validate official weights (`python -m finetuning.af3.weights`).
+3. Freeze the backbone, train LoRA + a task head (`AlphaFold3FineTuner`).
+4. Save `adapter.npz` only. Merged AF3 weights need an explicit terms acknowledgement.
 
-1. Download / check AF3 weights (`python -m finetuning.af3.weights`)
-2. Attach LoRA on Pairformer + Diffusion (`AlphaFold3FineTuner`)
-3. Train a task head (affinity, antibody, enzyme, PPI, ...)
-4. Save `adapter.npz` only (base AF3 weights stay frozen and are not written)
-
-**Then** the four model families (`alphafold2/`, `alphafold3/`, `boltz/`, `boltz2/`) provide notebooks and papers.
+Models under the engine (`alphafold2/`, `alphafold3/`, `boltz/`, `boltz2/`) are backbones plus notebooks/papers.
 
 </details>
 
